@@ -25,19 +25,25 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
-    private final String[] PUBLIC_ENDPOINT = {"/api/auth"
-    };
-
-    private final String[] ADMIN_ENDPOINT_GET = {
-    };
-    private final String[] ADMIN_ENDPOINT_POST = {
+    private final String[] PUBLIC_ENDPOINT = {"/api/auth/log-in",
+            "/api/accounts"
 
     };
 
-    private final String[] ADMIN_ENDPOINT_PUT = {
+    private final String[] USER_ENDPOINT_GET = {
+            "/api/accounts/{id}","/api/accounts/all","/api/accounts/page"
+    };
+    private final String[] USER_ENDPOINT_POST = {
     };
 
-    private final String[] ADMIN_ENDPOINT_DELETE = {
+    private final String[] USER_ENDPOINT_PUT = {
+            "/api/accounts/{id}"
+
+    };
+
+    private final String[] USER_ENDPOINT_DELETE = {
+            "/api/accounts/{id}"
+
     };
 
     @Value("${jwt.signerKey}")
@@ -48,10 +54,10 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> request
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll()
-                .requestMatchers(HttpMethod.GET, ADMIN_ENDPOINT_GET).hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, ADMIN_ENDPOINT_POST).hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, ADMIN_ENDPOINT_DELETE).hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, ADMIN_ENDPOINT_PUT).hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, USER_ENDPOINT_GET).hasRole("USER")
+                .requestMatchers(HttpMethod.POST, USER_ENDPOINT_POST).hasRole("USER")
+                .requestMatchers(HttpMethod.DELETE, USER_ENDPOINT_DELETE).hasRole("USER")
+                .requestMatchers(HttpMethod.PUT, USER_ENDPOINT_PUT).hasRole("USER")
                 .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2

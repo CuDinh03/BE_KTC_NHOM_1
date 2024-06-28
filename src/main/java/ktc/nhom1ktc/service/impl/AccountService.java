@@ -6,9 +6,13 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import ktc.nhom1ktc.dto.AuthenticationRequest;
 import ktc.nhom1ktc.dto.AuthenticationResponse;
 import ktc.nhom1ktc.entity.Account;
+import ktc.nhom1ktc.entity.Role;
+import ktc.nhom1ktc.entity.Users;
 import ktc.nhom1ktc.exception.AppException;
 import ktc.nhom1ktc.exception.ErrorCode;
 import ktc.nhom1ktc.repository.AccountRepository;
+import ktc.nhom1ktc.repository.RoleRepository;
+import ktc.nhom1ktc.repository.UserRepository;
 import ktc.nhom1ktc.service.IAccountService;
 import ktc.nhom1ktc.service.IService;
 import lombok.experimental.NonFinal;
@@ -28,35 +32,70 @@ import java.util.*;
 public class AccountService implements IService<Account>, IAccountService {
 
     @Autowired
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     @Override
     public Account getByID(UUID id) {
-        return null;
+        return accountRepository.findById(id).orElse(null);
     }
 
     @Override
     public Account create(Account request) {
-        return accountRepository.save(request);
+
+        Account account = new Account();
+        if (accountRepository.existsByUsername(request.getUsername())){
+            throw new AppException(ErrorCode.ACCOUNT_EXISTED);
+        }
+        account.setId(UUID.randomUUID());
+        account.setUsername(request.getUsername());
+        account.setCode("Tk"+request.getUsername());
+        account.setPassword(passwordEncoder.encode(request.getPassword()));
+        Role role = roleRepository.findByName("USER").get();
+        account.setRole(role);
+        account.setCreatedAt(new Date());
+        account.setUpdateAt(new Date());
+        account.setCreatedBy(request.getCreatedBy());
+        account.setUpdatedBy(request.getUpdatedBy());
+        account.setStatus(1);
+        Account account1 = accountRepository.save(account);
+        Users user = new Users();
+        user.setId(UUID.randomUUID());
+        user.setAccount(account1);
+        userRepository.save(user);
+        return account1;
     }
 
     @Override
     public Account update(UUID uuid, Account account) {
+        if (accountRepository.existsById(uuid)) {
+            account.setId(uuid);
+            return accountRepository.save(account);
+        }
         return null;
     }
 
     @Override
     public void delete(UUID id) {
-
+        accountRepository.deleteById(id);
     }
 
     @Override
     public List<Account> getAll() {
-        return null;
+        return accountRepository.findAll();
     }
 
     @Override
     public Page<Account> getAllPageable(Pageable pageable) {
-        return null;
+        return accountRepository.findAll(pageable);
     }
 
     @NonFinal
