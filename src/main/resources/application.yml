@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: Money-Tracker
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/money_tracker
+    username: user_test
+    password: pass
+  sql:
+    init:
+      mode: always
+  jpa:
+    generate-ddl: true
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+#      jakarta:
+#        persistence:
+#          schema-generation:
+#            create-source: metadata
+#            scripts:
+#              action: create
+#              create-target: src/main/resources/ddl_schema.sql
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+server:
+  port: 9091
+
+jwt:
+  signerKey: h9E1HtLTjk8/wgPV0Vj5hdXvKVxZg/5cHmN0yZeEfJwXkqQuQsNV+CUPal87UmsW
