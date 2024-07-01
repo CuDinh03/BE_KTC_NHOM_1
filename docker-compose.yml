@@ -7,8 +7,8 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: KTC
+      MYSQL_DATABASE: money_tracker
       MYSQL_USER: user_test
-      MYSQL_PASSWORD: pass_plain
+      MYSQL_PASSWORD: pass
     ports:
       - 3306:3306

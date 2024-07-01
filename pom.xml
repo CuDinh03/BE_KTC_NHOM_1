@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ktc</groupId>
-    <artifactId>Nhom1-KTC</artifactId>
+    <artifactId>money-tracker</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Nhom1-KTC</name>
-    <description>Nhom1-KTC</description>
+    <name>Money Tracker</name>
+    <description>Money Tracker (Class 2 - Team 1)</description>
     <url/>
     <licenses>
         <license/>
