@@ -1,33 +1,20 @@
-package ktc.nhom1ktc.entity;
+package ktc.nhom1ktc.dto;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import ktc.nhom1ktc.entity.Role;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.UUID;
-@Entity
-@Table
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class Account {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class AccountDto {
     private UUID id;
     private String code;
     private String username;
     private String password;
-    @ManyToOne
     private Role role;
     private String createdBy;
     private String updatedBy;
     private Date createdAt;
     private Date updateAt;
     private Integer status;
-
 }
