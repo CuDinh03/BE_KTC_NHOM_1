@@ -31,7 +31,7 @@ public class SecurityConfig {
     };
 
     private final String[] USER_ENDPOINT_GET = {
-            "/api/accounts/{id}","/api/accounts/all","/api/accounts/page"
+            "/api/accounts/{id}","/api/accounts/page"
     };
     private final String[] USER_ENDPOINT_POST = {
     };
