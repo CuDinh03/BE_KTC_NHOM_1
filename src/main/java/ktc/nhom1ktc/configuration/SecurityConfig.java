@@ -86,7 +86,7 @@ public class SecurityConfig {
 
 //        httpSecurity.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
 
-        httpSecurity.cors(Customizer.withDefaults());
+        httpSecurity.cors(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
