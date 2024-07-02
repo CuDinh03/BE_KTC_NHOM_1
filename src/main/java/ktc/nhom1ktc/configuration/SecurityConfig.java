@@ -46,12 +46,19 @@ public class SecurityConfig {
 
     };
 
+    private final String[] API_DOCS = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
+
     @Value("${jwt.signerKey}")
     private String signerKey;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers(HttpMethod.GET, API_DOCS).permitAll()
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll()
                 .requestMatchers(HttpMethod.GET, USER_ENDPOINT_GET).hasRole("USER")
