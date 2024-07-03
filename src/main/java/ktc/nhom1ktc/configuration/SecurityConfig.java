@@ -68,7 +68,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request
-//                .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINT).permitAll()
                 .requestMatchers(HttpMethod.GET, USER_ENDPOINT_GET).hasRole("USER")
@@ -83,8 +83,6 @@ public class SecurityConfig {
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
-
-//        httpSecurity.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()));
 
         httpSecurity.cors(Customizer.withDefaults());
 
