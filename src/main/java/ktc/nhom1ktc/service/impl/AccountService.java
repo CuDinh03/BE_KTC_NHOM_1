@@ -36,6 +36,9 @@ public class AccountService implements IService<Account>, IAccountService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EmailSenderService emailSenderService;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,15 +52,26 @@ public class AccountService implements IService<Account>, IAccountService {
     }
 
     @Override
-    public Account create(Account request) {
+    public Account create(Account account) {
+        return null;
+    }
 
-        Account account = new Account();
-        if (accountRepository.existsByUsername(request.getUsername())){
+    @Override
+    public Account create(Account request, String mail) {
+        // Kiểm tra nếu tên người dùng đã tồn tại
+        if (accountRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.ACCOUNT_EXISTED);
         }
+
+        // Kiểm tra nếu email đã tồn tại
+        if (userRepository.existsByEmail(mail)) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        Account account = new Account();
         account.setId(UUID.randomUUID());
         account.setUsername(request.getUsername());
-        account.setCode("Tk"+request.getUsername());
+        account.setCode("Tk" + request.getUsername());
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         Role role = roleRepository.findByName("USER").get();
         account.setRole(role);
@@ -66,13 +80,20 @@ public class AccountService implements IService<Account>, IAccountService {
         account.setCreatedBy(request.getCreatedBy());
         account.setUpdatedBy(request.getUpdatedBy());
         account.setStatus(1);
-        Account account1 = accountRepository.save(account);
+
+        Account savedAccount = accountRepository.save(account);
+
         Users user = new Users();
+        user.setEmail(mail);
         user.setId(UUID.randomUUID());
-        user.setAccount(account1);
+        user.setAccount(savedAccount);
         userRepository.save(user);
-        return account1;
+
+        emailSenderService.sendAccountCreationEmail(mail);
+
+        return savedAccount;
     }
+
 
     @Override
     public Account update(UUID uuid, Account account) {

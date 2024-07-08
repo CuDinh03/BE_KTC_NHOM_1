@@ -32,7 +32,7 @@ public class AccountController {
 
     @PostMapping
     public ApiResponse<Account> create(@RequestBody AccountDto request) {
-        Account createdAccount = accountService.create(TranferData.convertToEntity(request));
+        Account createdAccount = accountService.create(TranferData.convertToEntity(request), request.getMail());
         return ApiResponse.<Account>builder()
                 .code(1000)
                 .result(createdAccount)
