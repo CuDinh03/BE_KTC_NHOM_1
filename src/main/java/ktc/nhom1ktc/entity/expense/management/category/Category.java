@@ -3,15 +3,18 @@ package ktc.nhom1ktc.entity.expense.management.category;
 import jakarta.persistence.*;
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.expense.Status;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
+@ToString
+@Builder
 @Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "category")
 public class Category implements Serializable {
@@ -42,4 +45,8 @@ public class Category implements Serializable {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CategoryType type;
 }

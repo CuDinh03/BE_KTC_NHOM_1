@@ -83,7 +83,12 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.github.database-rider</groupId>
+            <artifactId>rider-core</artifactId>
+            <version>1.42.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

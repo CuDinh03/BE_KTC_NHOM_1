@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.UUID;
 
 @Getter
@@ -32,6 +33,9 @@ public class Expense {
 
     @Column(name = "amount")
     private BigDecimal amount;
+
+    @Column(name = "year")
+    private Year year;
 
     @Column(name = "expended_at")
     private LocalDate expendedAt;
