@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "Category")
 @Table(name = "category")
 public class Category implements Serializable {
     @Id

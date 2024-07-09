@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 class CategoryRepositoryTest extends RepositoryTests {
@@ -99,7 +100,7 @@ class CategoryRepositoryTest extends RepositoryTests {
 
         categoryRepository.saveAll(commonCategorySet);
 
-        List<Category> categoryList = categoryRepository.findCategoriesByAccountId(adminAcc.getId());
+        List<Category> categoryList = categoryRepository.findByAccountId(adminAcc.getId());
 
         Set<String> expectedCategoryNames = categoryList.stream()
                 .map(Category::getName)
@@ -122,7 +123,7 @@ class CategoryRepositoryTest extends RepositoryTests {
         categoryRepository.saveAll(commonCategorySet);
         categoryRepository.saveAll(personalCategorySet);
 
-        List<Category> categoryList = categoryRepository.findCategoriesByTypeOrAccountId(CategoryType.COMMON, userAcc.getId());
+        List<Category> categoryList = categoryRepository.findByTypeOrAccountId(CategoryType.COMMON, userAcc.getId());
 
         Set<String> expectedCategoryNames = categoryList.stream()
                 .map(Category::getName)
@@ -130,6 +131,109 @@ class CategoryRepositoryTest extends RepositoryTests {
 
         Assertions.assertTrue(expectedCategoryNames.containsAll(commonCategoryNames));
         Assertions.assertTrue(expectedCategoryNames.containsAll(personalCategoryNames));
+
     }
 
+    @Test
+    public void testUpdateCategoryNameByAccount() {
+        String commonCategoryName = commonCategoryNames.stream().findFirst().orElse("Common Category");
+        String personalCategoryName = personalCategoryNames.stream().findFirst().orElse("Personal Category");
+
+        Category commonCategory = categoryRepository.save(makeCommonCategoryByName(commonCategoryName));
+        Category personalCategory = categoryRepository.save(makePersonalCategoryByName(personalCategoryName));
+
+        /*
+            Update one category name of type COMMON by admin account
+         */
+        // JPA query shared for both ADMIN and USER roles
+        AtomicReference<String> updatedName = new AtomicReference<>();
+        String nameToUpdate = "New COMMON name";
+        UUID categoryId = commonCategory.getId(),
+                accountId = adminAcc.getId();
+        int updatedResult = categoryRepository.updateCategoryNameById(categoryId, accountId, nameToUpdate, dateTime, adminUsername);
+        Assertions.assertEquals(1, updatedResult);
+
+        categoryRepository.findById(commonCategory.getId()).ifPresent(c -> updatedName.set(c.getName()));
+        Assertions.assertEquals(nameToUpdate, updatedName.get());
+
+        // JPA query for ADMIN role only
+        nameToUpdate = "Native COMMON name";
+        updatedResult = categoryRepository.updateCategoryNameByIdWithRoleIsAdmin(categoryId, nameToUpdate, dateTime, adminUsername);
+        Assertions.assertEquals(1, updatedResult);
+
+        categoryRepository.findById(commonCategory.getId()).ifPresent(c -> updatedName.set(c.getName()));
+        Assertions.assertEquals(nameToUpdate, updatedName.get());
+
+        /*
+            Update one category name of type PERSONAL by user account
+         */
+        nameToUpdate = "New PERSONAL name";
+        categoryId = personalCategory.getId();
+        accountId = userAcc.getId();
+        updatedResult = categoryRepository.updateCategoryNameById(categoryId,
+                accountId,
+                nameToUpdate,
+                dateTime,
+                normalUsername);
+        Assertions.assertEquals(1, updatedResult);
+
+        categoryRepository.findById(personalCategory.getId())
+                .ifPresent(c -> updatedName.set(c.getName()));
+        Assertions.assertEquals(nameToUpdate, updatedName.get());
+
+        /*
+            Update one category name of type COMMON by user account
+         */
+        nameToUpdate = "New COMMON name";
+        categoryId = commonCategory.getId();
+        accountId = userAcc.getId();
+        updatedResult = categoryRepository.updateCategoryNameById(categoryId,
+                accountId,
+                nameToUpdate,
+                dateTime,
+                normalUsername);
+        Assertions.assertEquals(0, updatedResult);
+
+        /*
+            Update one category name of type PERSONAL by admin account
+         */
+        nameToUpdate = "New PERSONAL name";
+        categoryId = personalCategory.getId();
+        accountId = adminAcc.getId();
+        updatedResult = categoryRepository.updateCategoryNameById(categoryId,
+                accountId,
+                nameToUpdate,
+                dateTime,
+                adminUsername);
+        Assertions.assertEquals(0, updatedResult);
+    }
+
+    @Test
+    public void testUpdateCategoryStatusById() {
+        String commonCategoryName = commonCategoryNames.stream().findFirst().orElse("Common Category");
+        String personalCategoryName = personalCategoryNames.stream().findFirst().orElse("Personal Category");
+
+        Category commonCategory = categoryRepository.save(makeCommonCategoryByName(commonCategoryName));
+        Category personalCategory = categoryRepository.save(makePersonalCategoryByName(personalCategoryName));
+
+        Status commonStatus = commonCategory.getStatus();
+        Status personalStatus = personalCategory.getStatus();
+
+        // Update one category name of type COMMON by admin account
+        AtomicReference<Status> updatedStatus = new AtomicReference<>();
+        Status statusToUpdate = Status.DEACTIVATED;
+        UUID categoryId = commonCategory.getId(),
+                accountId = adminAcc.getId();
+        int updatedResult = categoryRepository.updateCategoryStatusById(categoryId,
+                accountId,
+                statusToUpdate,
+                dateTime,
+                adminUsername);
+        Assertions.assertEquals(1, updatedResult);
+
+        Category updatedCategory = categoryRepository.findById(categoryId).get();
+        categoryRepository.findById(categoryId)
+                .ifPresent(c -> updatedStatus.set(c.getStatus()));
+        Assertions.assertEquals(statusToUpdate, updatedStatus.get());
+    }
 }
