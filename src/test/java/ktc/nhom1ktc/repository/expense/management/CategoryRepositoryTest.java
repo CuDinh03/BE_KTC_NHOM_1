@@ -22,6 +22,7 @@ class CategoryRepositoryTest extends RepositoryTests {
         add("Household");
         add("Education");
         add("Transportation");
+        add("Beauty");
         add("Gift");
         add("Health");
         add("Other");
