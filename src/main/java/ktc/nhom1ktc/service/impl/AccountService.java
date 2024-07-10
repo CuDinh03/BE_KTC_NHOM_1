@@ -124,7 +124,19 @@ public class AccountService implements IService<Account>, IAccountService {
     @Value("${jwt.signerKey}")
     private String signerKey;
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+        Account account = new Account();
+        Users users = new Users();
+        if (request.getMail()!=null){
+             users = userRepository.findByEmail(request.getMail()).orElseThrow(()-> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+            account = users.getAccount();
+
+        }
+
+        if (request.getUsername()!=null){
+            account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+            users = userRepository.findByIdAccount(account.getId()).get();
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), account.getPassword());
 
@@ -134,6 +146,10 @@ public class AccountService implements IService<Account>, IAccountService {
         var token = generateToken(account);
 
         return AuthenticationResponse.builder()
+                .mail(users.getEmail())
+                .username(account.getUsername())
+                .name(users.getFirstName())
+                .lastName(users.getLastName())
                 .token(token)
                 .authenticated(true)
                 .build();
