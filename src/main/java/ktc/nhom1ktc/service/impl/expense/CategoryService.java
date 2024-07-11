@@ -1,5 +1,6 @@
 package ktc.nhom1ktc.service.impl.expense;
 
+import ktc.nhom1ktc.configuration.RoleType;
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.expense.Status;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
@@ -8,25 +9,25 @@ import ktc.nhom1ktc.event.AdminInitEvent;
 import ktc.nhom1ktc.repository.expense.management.CategoryRepository;
 import ktc.nhom1ktc.service.expense.ICategoryService;
 import ktc.nhom1ktc.service.impl.AccountService;
+import ktc.nhom1ktc.service.impl.AccountUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 public class CategoryService implements ICategoryService<Category, UUID> {
-
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private AccountService accountService;
-
     @Autowired
-    private Authentication authenticationContext;
+    private AccountUtil accountUtil;
 
     private static final Set<String> commonCategoryNames = new HashSet<>() {{
         add("Apparel");
@@ -41,6 +42,9 @@ public class CategoryService implements ICategoryService<Category, UUID> {
 
     @EventListener
     public void handleAdminInit(AdminInitEvent e) {
+        if (categoryRepository.existsByType(CategoryType.COMMON)) {
+            return;
+        }
         Optional<Account> adminAccountOp = accountService.findByUsername(e.getMessage());
         adminAccountOp.ifPresentOrElse(this::initCommonCategories, RuntimeException::new);
     }
@@ -53,50 +57,93 @@ public class CategoryService implements ICategoryService<Category, UUID> {
     }
 
     @Override
-    public Optional<Category> findOne(UUID id) {
+    public Optional<Category> findOneByCategoryId(UUID id) {
         return categoryRepository.findById(id);
     }
 
     @Override
-    public List<Category> findAll(UUID accountId) {
+    public List<Category> findAllByAccountId(UUID accountId) {
         return categoryRepository.findByTypeOrAccountId(CategoryType.COMMON, accountId);
     }
 
     @Override
-    public Optional<Category> createOne(String name, UUID accountId) {
+    public List<Category> findAllByUsername(String username) {
+        return categoryRepository.findByCreatedByOrUpdatedByOrType(username, CategoryType.COMMON);
+    }
 
-        Account account = accountService.getByID(accountId);
-        if (Objects.isNull(account)) {
-            return Optional.empty();
+    private String validateCategoryName(String name, UUID accountId) {
+        if (StringUtils.isBlank(name)) {
+            // throw BlackOrEmptyCategoryNameException
+            return null;
         }
 
         List<Category> categories = categoryRepository.findByTypeOrAccountId(CategoryType.COMMON, accountId);
         String validName = name.trim().replaceAll("\\s{2,}", " ");
+
         for (Category category : categories) {
             if (category.getName().equals(validName)) {
-                return Optional.empty();
+                // throw DuplicateCategoryNameException
+                return null;
             }
         }
 
+        return validName;
+    }
+
+    private Account validateAccountId(UUID accountId) {
+        return accountService.getByID(accountId);
+    }
+
+    @Override
+    public Optional<Category> createOne(String name, UUID accountId) {
+        Account account = validateAccountId(accountId);
+        if (Objects.isNull(account)) {
+            return Optional.empty();
+        }
+
+        String validName = validateCategoryName(name, accountId);
+        if (StringUtils.isBlank(validName)) {
+            return Optional.empty();
+        }
+
+        if (account.getRole().getName().equals(RoleType.ADMIN.name())) {
+            commonCategoryNames.add(validName);
+        }
         return Optional.of(categoryRepository.save(makeCategoryByName(validName, account)));
     }
 
     @Override
-    public Category updateCategoryNameWithRoleAdmin(UUID id, String name) {
-        categoryRepository.updateCategoryNameByIdWithRoleIsAdmin(id, name, LocalDateTime.now(), authenticationContext.getName());
-        return categoryRepository.findById(id).orElse(null);
+    public Category updateCategoryNameWithRoleAdmin(UUID id, UUID accountId, String name) {
+        String validName = validateCategoryName(name, accountId);
+        if (StringUtils.isBlank(validName)) {
+            return null;
+        }
+
+        commonCategoryNames.add(validName);
+
+        categoryRepository.setCategoryNameByIdWithRoleIsAdmin(id, validName, LocalDateTime.now(), accountUtil.getUsername());
+        return categoryRepository.findById(id).orElseGet(() -> new Category());
     }
 
     @Override
     public Category updateCategoryName(UUID id, UUID accountId, String name) {
-        categoryRepository.updateCategoryNameById(id, accountId, name, LocalDateTime.now(), authenticationContext.getName());
-        return categoryRepository.findById(accountId).orElse(null);
+        String validName = validateCategoryName(name, accountId);
+        log.info("updateCategoryName validName before {}", validName);
+        if (StringUtils.isBlank(validName)) {
+            // throw invalid category name exception
+            return null;
+        }
+//        log.info("updateCategoryName validName after {}", validName);
+
+        int updateResult = categoryRepository.setCategoryNameById(id, accountId, validName, LocalDateTime.now(), accountUtil.getUsername());
+//        log.info("updateCategoryName updateResult {}", updateResult);
+        return categoryRepository.findById(id).orElseGet(() -> new Category());
     }
 
     @Override
     public Category updateCategoryStatus(UUID id, UUID accountId, Status status) {
-        categoryRepository.updateCategoryStatusById(id, accountId, status, LocalDateTime.now(), authenticationContext.getName());
-        return categoryRepository.findById(accountId).orElse(null);
+        int updateResult = categoryRepository.setCategoryStatusById(id, accountId, status, LocalDateTime.now(), accountUtil.getUsername());
+        return categoryRepository.findById(id).orElseGet(() -> new Category());
     }
 
 
@@ -126,8 +173,4 @@ public class CategoryService implements ICategoryService<Category, UUID> {
                 .build();
     }
 
-    protected enum RoleType {
-        ADMIN,
-        USER,
-    }
 }

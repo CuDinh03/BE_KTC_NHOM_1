@@ -22,10 +22,17 @@ public interface CategoryRepository extends JpaRepository<Category, UUID>, JpaSp
     List<Category> findByTypeOrAccountId(CategoryType categoryType, UUID accountId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(nativeQuery = true,
+            value = "SELECT *" +
+                    " FROM category c" +
+                    " WHERE c.created_by = :username OR c.updated_by = :username OR c.type = :#{#type.name()}")
+    List<Category> findByCreatedByOrUpdatedByOrType(@Param("username") String username, @Param("type") CategoryType type);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE Category c" +
             " SET c.name = :name, c.updatedAt = :updated_at, c.updatedBy = :updated_by" +
             " WHERE c.id = :id AND c.type = ktc.nhom1ktc.entity.expense.management.category.CategoryType.COMMON")
-    int updateCategoryNameByIdWithRoleIsAdmin(@Param("id") UUID id,
+    int setCategoryNameByIdWithRoleIsAdmin(@Param("id") UUID id,
                                            @Param("name") String name,
                                            @Param("updated_at") LocalDateTime updatedAt,
                                            @Param("updated_by") String updatedBy);
@@ -33,9 +40,9 @@ public interface CategoryRepository extends JpaRepository<Category, UUID>, JpaSp
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE category c" +
                     " SET c.name = :name, c.updated_at = :updated_at, c.updated_by = :updated_by" +
-                    " WHERE c.id = :id AND c.account_id = :account_id",
+                    " WHERE c.id = :id AND (c.account_id = :account_id OR c.updated_by = :updated_by)",
             nativeQuery = true)
-    int updateCategoryNameById(@Param("id") UUID id,
+    int setCategoryNameById(@Param("id") UUID id,
                                    @Param("account_id") UUID accountId,
                                    @Param("name") String name,
                                    @Param("updated_at") LocalDateTime updatedAt,
@@ -55,11 +62,13 @@ public interface CategoryRepository extends JpaRepository<Category, UUID>, JpaSp
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE category c" +
             " SET c.status = :#{#status.name()}, c.updated_at = :updated_at, c.updated_by = :updated_by" +
-            " WHERE c.id = :id AND c.account_id = :account_id",
+            " WHERE c.id = :id AND (c.account_id = :account_id OR c.updated_by = :updated_by)",
             nativeQuery = true)
-    int updateCategoryStatusById(@Param("id") UUID id,
+    int setCategoryStatusById(@Param("id") UUID id,
                                  @Param("account_id") UUID accountId,
                                  @Param("status") Status status,
                                  @Param("updated_at") LocalDateTime updatedAt,
                                  @Param("updated_by") String updatedBy);
+
+    boolean existsByType(CategoryType categoryType);
 }
