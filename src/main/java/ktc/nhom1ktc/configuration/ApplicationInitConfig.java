@@ -73,7 +73,7 @@ public class ApplicationInitConfig {
                 log.warn("admin user has been created with default password: admin, change it !! ");
             }
 
-            applicationEventPublisher.publishEvent(new AdminInitEvent(null, adminUsername));
+            applicationEventPublisher.publishEvent(new AdminInitEvent("source", adminUsername));
         };
     }
 

@@ -1,5 +1,7 @@
 package ktc.nhom1ktc.configuration;
 
+import lombok.Data;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +12,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -59,6 +59,10 @@ public class SecurityConfig {
             "/v3/api-docs/**"
     };
 
+    private final String[] ADMIN_CATEGORY_ENDPOINT = {
+            "/api/v1/admin/category/**",
+    };
+
     @Value("${jwt.signerKey}")
     private String signerKey;
 
@@ -83,6 +87,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, USER_ENDPOINT_POST).hasRole("USER")
                 .requestMatchers(HttpMethod.DELETE, USER_ENDPOINT_DELETE).hasRole("USER")
                 .requestMatchers(HttpMethod.PUT, USER_ENDPOINT_PUT).hasRole("USER")
+//                .requestMatchers(HttpMethod.GET, API_DOCS).hasRole(RoleType.ADMIN.name())
+                .requestMatchers(HttpMethod.GET, ADMIN_CATEGORY_ENDPOINT).hasRole(RoleType.ADMIN.name())
+                .requestMatchers(HttpMethod.POST, ADMIN_CATEGORY_ENDPOINT).hasRole(RoleType.ADMIN.name())
+                .requestMatchers(HttpMethod.PUT, ADMIN_CATEGORY_ENDPOINT).hasRole(RoleType.ADMIN.name())
                 .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
@@ -120,8 +128,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(10);
     }
 
-    @Bean
-    Authentication getAuthentication() {
-        return SecurityContextHolder.getContext().getAuthentication();
-    }
 }

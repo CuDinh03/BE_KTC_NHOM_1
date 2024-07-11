@@ -9,8 +9,10 @@ import ktc.nhom1ktc.repository.RepositoryTests;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -124,15 +126,16 @@ class CategoryRepositoryTest extends RepositoryTests {
         categoryRepository.saveAll(commonCategorySet);
         categoryRepository.saveAll(personalCategorySet);
 
-        List<Category> categoryList = categoryRepository.findByTypeOrAccountId(CategoryType.COMMON, userAcc.getId());
+        List<Category> catList = categoryRepository.findByCreatedByOrUpdatedByOrType(normalUsername, CategoryType.COMMON);
+        Set<String> catSet = catList.stream().map(Category::getName).collect(Collectors.toSet());
 
-        Set<String> expectedCategoryNames = categoryList.stream()
-                .map(Category::getName)
-                .collect(Collectors.toSet());
+        List<Category> categoryList = categoryRepository.findByTypeOrAccountId(CategoryType.COMMON, userAcc.getId());
+        Set<String> expectedCategoryNames = categoryList.stream().map(Category::getName).collect(Collectors.toSet());
 
         Assertions.assertTrue(expectedCategoryNames.containsAll(commonCategoryNames));
         Assertions.assertTrue(expectedCategoryNames.containsAll(personalCategoryNames));
 
+        Assertions.assertEquals(expectedCategoryNames, catSet);
     }
 
     @Test
@@ -151,7 +154,7 @@ class CategoryRepositoryTest extends RepositoryTests {
         String nameToUpdate = "New COMMON name";
         UUID categoryId = commonCategory.getId(),
                 accountId = adminAcc.getId();
-        int updatedResult = categoryRepository.updateCategoryNameById(categoryId, accountId, nameToUpdate, dateTime, adminUsername);
+        int updatedResult = categoryRepository.setCategoryNameById(categoryId, accountId, nameToUpdate, dateTime, adminUsername);
         Assertions.assertEquals(1, updatedResult);
 
         categoryRepository.findById(commonCategory.getId()).ifPresent(c -> updatedName.set(c.getName()));
@@ -159,7 +162,7 @@ class CategoryRepositoryTest extends RepositoryTests {
 
         // JPA query for ADMIN role only
         nameToUpdate = "Native COMMON name";
-        updatedResult = categoryRepository.updateCategoryNameByIdWithRoleIsAdmin(categoryId, nameToUpdate, dateTime, adminUsername);
+        updatedResult = categoryRepository.setCategoryNameByIdWithRoleIsAdmin(categoryId, nameToUpdate, dateTime, adminUsername);
         Assertions.assertEquals(1, updatedResult);
 
         categoryRepository.findById(commonCategory.getId()).ifPresent(c -> updatedName.set(c.getName()));
@@ -171,7 +174,7 @@ class CategoryRepositoryTest extends RepositoryTests {
         nameToUpdate = "New PERSONAL name";
         categoryId = personalCategory.getId();
         accountId = userAcc.getId();
-        updatedResult = categoryRepository.updateCategoryNameById(categoryId,
+        updatedResult = categoryRepository.setCategoryNameById(categoryId,
                 accountId,
                 nameToUpdate,
                 dateTime,
@@ -188,7 +191,7 @@ class CategoryRepositoryTest extends RepositoryTests {
         nameToUpdate = "New COMMON name";
         categoryId = commonCategory.getId();
         accountId = userAcc.getId();
-        updatedResult = categoryRepository.updateCategoryNameById(categoryId,
+        updatedResult = categoryRepository.setCategoryNameById(categoryId,
                 accountId,
                 nameToUpdate,
                 dateTime,
@@ -201,7 +204,7 @@ class CategoryRepositoryTest extends RepositoryTests {
         nameToUpdate = "New PERSONAL name";
         categoryId = personalCategory.getId();
         accountId = adminAcc.getId();
-        updatedResult = categoryRepository.updateCategoryNameById(categoryId,
+        updatedResult = categoryRepository.setCategoryNameById(categoryId,
                 accountId,
                 nameToUpdate,
                 dateTime,
@@ -225,16 +228,19 @@ class CategoryRepositoryTest extends RepositoryTests {
         Status statusToUpdate = Status.DEACTIVATED;
         UUID categoryId = commonCategory.getId(),
                 accountId = adminAcc.getId();
-        int updatedResult = categoryRepository.updateCategoryStatusById(categoryId,
+        int updatedResult = categoryRepository.setCategoryStatusById(categoryId,
                 accountId,
                 statusToUpdate,
                 dateTime,
                 adminUsername);
         Assertions.assertEquals(1, updatedResult);
 
-        Category updatedCategory = categoryRepository.findById(categoryId).get();
         categoryRepository.findById(categoryId)
                 .ifPresent(c -> updatedStatus.set(c.getStatus()));
         Assertions.assertEquals(statusToUpdate, updatedStatus.get());
+
+
+        Assertions.assertTrue(categoryRepository.existsByType(CategoryType.COMMON));
     }
+
 }
