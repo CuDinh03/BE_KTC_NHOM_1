@@ -3,6 +3,7 @@ package ktc.nhom1ktc.controller;
 import ktc.nhom1ktc.dto.ApiResponse;
 import ktc.nhom1ktc.dto.AuthenticationRequest;
 import ktc.nhom1ktc.dto.AuthenticationResponse;
+import ktc.nhom1ktc.dto.ResetPasswordRequest;
 import ktc.nhom1ktc.entity.PasswordResetToken;
 import ktc.nhom1ktc.entity.Users;
 import ktc.nhom1ktc.exception.AppException;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -46,10 +48,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/reset-password")
-    public ApiResponse<Users> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+    public ApiResponse<Users> resetPassword(@RequestBody ResetPasswordRequest request) {
         ApiResponse<Users> apiResponse = new ApiResponse<>();
 
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
         if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
@@ -57,7 +59,7 @@ public class AuthenticationController {
         }
 
         Users user = resetToken.getUser();
-        user.getAccount().setPassword(passwordEncoder.encode(newPassword));
+        user.getAccount().setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
         apiResponse.setCode(1000);
@@ -71,7 +73,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/forgot-password")
-    public ApiResponse<Users> forgotPassword(@RequestParam String email) {
+    public ApiResponse<Users> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.isEmpty()) {
+            return ApiResponse.<Users>builder().message("error").build() ;
+        }
+
         ApiResponse<Users> apiResponse = new ApiResponse<>();
 
         Users user = userRepository.findByEmail(email)
@@ -80,7 +87,7 @@ public class AuthenticationController {
         PasswordResetToken token = new PasswordResetToken();
         token.setToken(UUID.randomUUID().toString());
         token.setUser(user);
-        token.setExpiryDate(LocalDateTime.now().plusHours(24)); // Token thông báo hết hạn sau 24 giờ
+        token.setExpiryDate(LocalDateTime.now().plusMinutes(5)); // Token thông báo hết hạn sau 5 phút
         passwordResetTokenRepository.save(token);
 
         apiResponse.setCode(1000);
@@ -91,5 +98,6 @@ public class AuthenticationController {
 
         return apiResponse;
     }
+
 
 }

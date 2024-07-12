@@ -26,7 +26,7 @@ public class SecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     private final String[] PUBLIC_ENDPOINT = {"/api/auth/log-in",
-            "/api/accounts"
+            "/api/accounts","/api/auth/forgot-password","/api/auth/reset-password"
 
     };
 

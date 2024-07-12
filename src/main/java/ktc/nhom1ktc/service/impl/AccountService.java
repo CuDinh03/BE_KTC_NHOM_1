@@ -123,16 +123,17 @@ public class AccountService implements IService<Account>, IAccountService {
 
     @Value("${jwt.signerKey}")
     private String signerKey;
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Account account = new Account();
         Users users = new Users();
-        if (request.getMail()!=null){
-             users = userRepository.findByEmail(request.getMail()).orElseThrow(()-> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+        if (request.getMail() != null) {
+            users = userRepository.findByEmail(request.getMail()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
             account = users.getAccount();
 
         }
 
-        if (request.getUsername()!=null){
+        if (request.getUsername() != null) {
             account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
             users = userRepository.findByIdAccount(account.getId()).get();
         }
