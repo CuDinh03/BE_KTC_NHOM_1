@@ -4,7 +4,7 @@ package ktc.nhom1ktc.service.impl.expense;
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.event.UserLoginEvent;
 import ktc.nhom1ktc.repository.expense.management.MonthlyIncomeRepository;
-import ktc.nhom1ktc.service.expense.IMonthlyIncome;
+import ktc.nhom1ktc.service.expense.IMonthlyIncomeService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Primary
-public class MonthlyIncomeService implements IMonthlyIncome<MonthlyIncome, UUID> {
+public class MonthlyIncomeServiceService implements IMonthlyIncomeService<MonthlyIncome, UUID> {
 
     @Autowired
     private AccountUtil accountUtil;

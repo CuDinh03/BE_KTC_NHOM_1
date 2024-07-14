@@ -1,11 +1,14 @@
 package ktc.nhom1ktc.exception;
 
 import ktc.nhom1ktc.dto.ApiResponse;
+import ktc.nhom1ktc.exception.expense.IncomeDateNotExistedInMonthlyIncomeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.time.YearMonth;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -62,5 +65,20 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(errorCode.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(value = IncomeDateNotExistedInMonthlyIncomeException.class)
+    ResponseEntity<ApiResponse> handleIncomeDateMapping(IncomeDateNotExistedInMonthlyIncomeException exception){
+        YearMonth yearMonth = exception.getYearMonth();
+        String msg = exception.getMessage();
+        ErrorCode errorCode = ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME;
+
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .result(yearMonth)
+                        .message(msg)
+                        .build());
     }
 }
