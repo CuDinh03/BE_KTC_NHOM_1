@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 public interface IIncomeService<T> {
@@ -18,8 +19,11 @@ public interface IIncomeService<T> {
     T addSingle(BigDecimal amount, LocalDate date) throws Exception;
 
     @Transactional
-    T update(IncomeRequest request) throws IncomeObjectNotFoundForAccountException;
+    T update(IncomeRequest request) throws Exception;
 
     @Transactional
     T update(T t);
+
+    @Transactional
+    UUID deleteById(UUID request) throws Exception;
 }

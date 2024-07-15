@@ -14,8 +14,10 @@ import java.util.UUID;
 public interface IncomeRepository extends JpaRepository<Income, UUID> {
     Income findByIdAndCreatedBy(UUID id, String name);
 
-    @Modifying
-    @Query("UPDATE Income i SET i.amount = :amount WHERE i.id = :id")
-    Income setAmount(@Param("id") UUID id,
-                     @Param("amount") BigDecimal amount);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "UPDATE Income i SET i.amount = :amount WHERE i.id = :id")
+    int setAmount(@Param("id") UUID id,
+                  @Param("amount") BigDecimal amount);
+
+    int deleteByIdAndCreatedBy(UUID id, String name);
 }

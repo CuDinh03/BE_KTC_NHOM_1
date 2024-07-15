@@ -19,6 +19,8 @@ public interface MonthlyIncomeRepository extends JpaRepository<MonthlyIncome, UU
 
     boolean existsByAccountIdAndYear(UUID accountId, Year year);
 
+//    MonthlyIncome findById(UUID id);
+
     List<MonthlyIncome> findAllByAccountIdAndYear(UUID accountId, Year year);
 
     List<MonthlyIncome> findAllByCreatedByAndYear(String name, Year year);
@@ -35,4 +37,6 @@ public interface MonthlyIncomeRepository extends JpaRepository<MonthlyIncome, UU
     boolean setIncomeSum(@Param("incomeSum") BigDecimal incomeSum,
                          @Param("createdBy") String createdBy,
                          @Param("year") Year year, @Param("month") Month month);
+
+    MonthlyIncome findByIdAndCreatedByAndYearAndMonth(UUID id, String name, Year year, Month month);
 }
