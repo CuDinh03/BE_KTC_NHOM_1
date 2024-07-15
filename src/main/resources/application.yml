@@ -3,7 +3,7 @@ spring:
     name: Money-Tracker
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/money_tracker
+    url: jdbc:mysql://localhost:3307/money_tracker
     username: user_test
     password: pass
   sql:
@@ -24,11 +24,17 @@ spring:
 #              action: create
 #              create-target: src/main/resources/ddl_schema.sql
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+  devtools:
+    add-properties: false
 
 server:
   port: 9091
 
 jwt:
   signerKey: h9E1HtLTjk8/wgPV0Vj5hdXvKVxZg/5cHmN0yZeEfJwXkqQuQsNV+CUPal87UmsW
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

@@ -6,8 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
+import java.time.Year;
+
 @Entity
 @Table
 @Data
@@ -29,5 +32,7 @@ public class Account {
     private Date createdAt;
     private Date updateAt;
     private Integer status;
-
+    private BigDecimal incomeSum;
+    private BigDecimal expenseSum;
+    private Year lastLoginedYear;
 }

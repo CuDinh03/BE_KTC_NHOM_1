@@ -1,4 +1,8 @@
 package ktc.nhom1ktc.service;
 
-public interface IAccountService {
+import java.util.Optional;
+
+public interface IAccountService<T> {
+
+    Optional<T> findByUsername(String username);
 }
