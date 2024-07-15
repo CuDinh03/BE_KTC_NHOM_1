@@ -24,7 +24,7 @@ spring:
 #              action: create
 #              create-target: src/main/resources/ddl_schema.sql
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
   mail:
     host: smtp.gmail.com
@@ -38,8 +38,17 @@ spring:
           starttls:
             enable: true
 
+  devtools:
+    add-properties: false
+
+
 server:
   port: 9091
 
 jwt:
   signerKey: h9E1HtLTjk8/wgPV0Vj5hdXvKVxZg/5cHmN0yZeEfJwXkqQuQsNV+CUPal87UmsW
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

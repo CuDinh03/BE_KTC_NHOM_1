@@ -30,7 +30,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
-public class AccountService implements IService<Account>, IAccountService {
+public class AccountService implements IService<Account>, IAccountService<Account> {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -121,6 +121,11 @@ public class AccountService implements IService<Account>, IAccountService {
     @Override
     public Page<Account> getAllPageable(Pageable pageable) {
         return accountRepository.findAll(pageable);
+    }
+
+    @Override
+    public Optional<Account> findByUsername(String username) {
+        return accountRepository.findByUsername(username);
     }
 
     @NonFinal
