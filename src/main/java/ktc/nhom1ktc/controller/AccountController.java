@@ -2,6 +2,7 @@ package ktc.nhom1ktc.controller;
 
 import ktc.nhom1ktc.TranferData.TranferData;
 import ktc.nhom1ktc.dto.AccountDto;
+import ktc.nhom1ktc.dto.ChangePasswordRequest;
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.dto.ApiResponse;
 import ktc.nhom1ktc.service.impl.AccountService;
@@ -74,5 +75,23 @@ public class AccountController {
                 .code(1000)
                 .result(accountsPage)
                 .build();
+    }
+
+    @PostMapping("/change-password")
+    public ApiResponse<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        boolean result = accountService.changePassword(request);
+        if (result) {
+            return ApiResponse.<String>builder()
+                    .code(1000)
+                    .message("Password changed successfully")
+                    .result("Success")
+                    .build();
+        } else {
+            return ApiResponse.<String>builder()
+                    .code(1001)
+                    .message("Invalid old password or account not found")
+                    .result("Failure")
+                    .build();
+        }
     }
 }

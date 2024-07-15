@@ -5,6 +5,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import ktc.nhom1ktc.dto.AuthenticationRequest;
 import ktc.nhom1ktc.dto.AuthenticationResponse;
+import ktc.nhom1ktc.dto.ChangePasswordRequest;
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.Role;
 import ktc.nhom1ktc.entity.Users;
@@ -82,11 +83,14 @@ public class AccountService implements IService<Account>, IAccountService {
         account.setStatus(1);
 
         Account savedAccount = accountRepository.save(account);
-
         Users user = new Users();
         user.setEmail(mail);
         user.setId(UUID.randomUUID());
         user.setAccount(savedAccount);
+        user.setCreatedAt(new Date());
+        user.setCreatedBy(account.getUsername());
+        user.setUpdateAt(new Date());
+        user.setUpdatedBy(account.getUsername());
         userRepository.save(user);
 
         emailSenderService.sendAccountCreationEmail(mail);
@@ -193,5 +197,19 @@ public class AccountService implements IService<Account>, IAccountService {
             }
         }
         return stringJoiner.toString();
+    }
+
+
+    public boolean changePassword(ChangePasswordRequest request) {
+        Account account = accountRepository.findById(request.getAccountId()).orElse(null);
+        if (account == null) {
+            return false;
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), account.getPassword())) {
+            return false;
+        }
+        account.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        accountRepository.save(account);
+        return true;
     }
 }

@@ -32,7 +32,7 @@ public class EmailSenderService {
     public void sendPasswordResetEmail(String to, String token) {
         String subject = "Password Reset Request";
         String text = "To reset your password, click the link below:\n"
-                + "http://localhost:9091/api/auth/reset-password?token=" + token;
+                + "https://money-tracker.bunhere.com/new-password?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
