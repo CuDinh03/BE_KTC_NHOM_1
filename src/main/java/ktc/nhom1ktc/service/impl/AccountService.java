@@ -134,16 +134,17 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
     private String signerKey;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        Account account = new Account();
-        Users users = new Users();
-        if (request.getMail() != null) {
-            users = userRepository.findByEmail(request.getMail()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+        String inputRequest = request.getInput();
+        Account account;
+        Users users;
+
+        if (inputRequest.contains("@")) {
+            users = userRepository.findByEmail(inputRequest)
+                    .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
             account = users.getAccount();
-
-        }
-
-        if (request.getUsername() != null) {
-            account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+        } else {
+            account = accountRepository.findByUsername(inputRequest)
+                    .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
             users = userRepository.findByIdAccount(account.getId()).get();
         }
 
@@ -157,6 +158,7 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
 
         return AuthenticationResponse.builder()
                 .mail(users.getEmail())
+                .userId(String.valueOf(users.getId()))
                 .username(account.getUsername())
                 .name(users.getFirstName())
                 .lastName(users.getLastName())
@@ -164,6 +166,7 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
                 .authenticated(true)
                 .build();
     }
+
 
     private String generateToken(Account account) {
 
