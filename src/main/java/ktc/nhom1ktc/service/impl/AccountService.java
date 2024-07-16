@@ -5,6 +5,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import ktc.nhom1ktc.dto.AuthenticationRequest;
 import ktc.nhom1ktc.dto.AuthenticationResponse;
+import ktc.nhom1ktc.dto.ChangePasswordRequest;
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.Role;
 import ktc.nhom1ktc.entity.Users;
@@ -36,6 +37,9 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EmailSenderService emailSenderService;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -49,15 +53,26 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
     }
 
     @Override
-    public Account create(Account request) {
+    public Account create(Account account) {
+        return null;
+    }
 
-        Account account = new Account();
-        if (accountRepository.existsByUsername(request.getUsername())){
+    @Override
+    public Account create(Account request, String mail) {
+        // Kiểm tra nếu tên người dùng đã tồn tại
+        if (accountRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.ACCOUNT_EXISTED);
         }
+
+        // Kiểm tra nếu email đã tồn tại
+        if (userRepository.existsByEmail(mail)) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        Account account = new Account();
         account.setId(UUID.randomUUID());
         account.setUsername(request.getUsername());
-        account.setCode("Tk"+request.getUsername());
+        account.setCode("Tk" + request.getUsername());
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         Role role = roleRepository.findByName("USER").get();
         account.setRole(role);
@@ -66,13 +81,23 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
         account.setCreatedBy(request.getCreatedBy());
         account.setUpdatedBy(request.getUpdatedBy());
         account.setStatus(1);
-        Account account1 = accountRepository.save(account);
+
+        Account savedAccount = accountRepository.save(account);
         Users user = new Users();
+        user.setEmail(mail);
         user.setId(UUID.randomUUID());
-        user.setAccount(account1);
+        user.setAccount(savedAccount);
+        user.setCreatedAt(new Date());
+        user.setCreatedBy(account.getUsername());
+        user.setUpdateAt(new Date());
+        user.setUpdatedBy(account.getUsername());
         userRepository.save(user);
-        return account1;
+
+        emailSenderService.sendAccountCreationEmail(mail);
+
+        return savedAccount;
     }
+
 
     @Override
     public Account update(UUID uuid, Account account) {
@@ -107,8 +132,21 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
 
     @Value("${jwt.signerKey}")
     private String signerKey;
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+        Account account = new Account();
+        Users users = new Users();
+        if (request.getMail() != null) {
+            users = userRepository.findByEmail(request.getMail()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+            account = users.getAccount();
+
+        }
+
+        if (request.getUsername() != null) {
+            account = accountRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_EXISTED));
+            users = userRepository.findByIdAccount(account.getId()).get();
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), account.getPassword());
 
@@ -118,6 +156,10 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
         var token = generateToken(account);
 
         return AuthenticationResponse.builder()
+                .mail(users.getEmail())
+                .username(account.getUsername())
+                .name(users.getFirstName())
+                .lastName(users.getLastName())
                 .token(token)
                 .authenticated(true)
                 .build();
@@ -160,5 +202,19 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
             }
         }
         return stringJoiner.toString();
+    }
+
+
+    public boolean changePassword(ChangePasswordRequest request) {
+        Account account = accountRepository.findById(request.getAccountId()).orElse(null);
+        if (account == null) {
+            return false;
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), account.getPassword())) {
+            return false;
+        }
+        account.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        accountRepository.save(account);
+        return true;
     }
 }
