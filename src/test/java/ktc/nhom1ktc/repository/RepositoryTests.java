@@ -2,7 +2,7 @@ package ktc.nhom1ktc.repository;
 
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.Role;
-import ktc.nhom1ktc.repository.expense.management.CategoryRepository;
+import ktc.nhom1ktc.repository.expense.management.category.CategoryRepository;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;

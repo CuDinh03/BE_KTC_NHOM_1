@@ -2,19 +2,24 @@ package ktc.nhom1ktc.entity.expense.management.outcome;
 
 import jakarta.persistence.*;
 import ktc.nhom1ktc.entity.Account;
+import ktc.nhom1ktc.entity.expense.management.MonthOrderConverter;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
-import ktc.nhom1ktc.entity.expense.management.category.MonthlyLog;
-import lombok.Getter;
-import lombok.Setter;
+import ktc.nhom1ktc.entity.expense.management.MonthlyLog;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.Year;
 import java.util.UUID;
 
+@Builder
+@ToString
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "expense")
 public class Expense {
@@ -23,13 +28,19 @@ public class Expense {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "account_id", nullable = false)
+//    private Account account;
 
-    @ManyToOne(optional = false)
+    @JoinColumn(name = "account_id", nullable = false)
+    private UUID accountId;
+
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "category_id", nullable = false)
+//    private Category category;
+
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private UUID categoryId;
 
     @Column(name = "amount")
     private BigDecimal amount;
@@ -37,8 +48,12 @@ public class Expense {
     @Column(name = "year")
     private Year year;
 
-    @Column(name = "expended_at")
-    private LocalDate expendedAt;
+    @Column(name = "month")
+    @Convert(converter = MonthOrderConverter.class)
+    private Month month;
+
+    @Column(name = "date")
+    private LocalDate date;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -52,8 +67,10 @@ public class Expense {
     @Column(name = "updated_by", nullable = false)
     private String updatedBy;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "monthly_log_id", nullable = false)
-    private MonthlyLog monthlyLog;
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "monthly_log_id", nullable = false)
+//    private MonthlyLog monthlyLog;
 
+    @JoinColumn(name = "monthly_log_id", nullable = false)
+    private UUID monthlyLogId;
 }

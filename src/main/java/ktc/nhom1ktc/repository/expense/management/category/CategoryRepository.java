@@ -1,4 +1,4 @@
-package ktc.nhom1ktc.repository.expense.management;
+package ktc.nhom1ktc.repository.expense.management.category;
 
 import ktc.nhom1ktc.entity.expense.Status;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -20,6 +21,8 @@ public interface CategoryRepository extends JpaRepository<Category, UUID>, JpaSp
     List<Category> findByAccountId(UUID accountId);
 
     List<Category> findByTypeOrAccountId(CategoryType categoryType, UUID accountId);
+
+    Set<Category> findAllByTypeAndUpdatedBy(CategoryType categoryType, String nane);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(nativeQuery = true,

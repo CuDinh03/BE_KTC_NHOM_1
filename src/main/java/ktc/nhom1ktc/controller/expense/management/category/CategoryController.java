@@ -1,4 +1,4 @@
-package ktc.nhom1ktc.controller.expense;
+package ktc.nhom1ktc.controller.expense.management.category;
 
 import ktc.nhom1ktc.dto.expense.category.CategoryRequest;
 import ktc.nhom1ktc.dto.expense.category.CategoryResponse;

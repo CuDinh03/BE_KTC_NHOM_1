@@ -1,18 +1,20 @@
 package ktc.nhom1ktc.service.impl.expense;
 
+import jakarta.annotation.PostConstruct;
 import ktc.nhom1ktc.configuration.RoleType;
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.expense.Status;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
 import ktc.nhom1ktc.entity.expense.management.category.CategoryType;
 import ktc.nhom1ktc.event.AdminInitEvent;
-import ktc.nhom1ktc.repository.expense.management.CategoryRepository;
+import ktc.nhom1ktc.repository.expense.management.category.CategoryRepository;
 import ktc.nhom1ktc.service.expense.ICategoryService;
 import ktc.nhom1ktc.service.impl.AccountService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,8 @@ public class CategoryService implements ICategoryService<Category, UUID> {
     private AccountService accountService;
     @Autowired
     private AccountUtil accountUtil;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     private static final Set<String> commonCategoryNames = new HashSet<>() {{
         add("Apparel");
@@ -39,6 +43,12 @@ public class CategoryService implements ICategoryService<Category, UUID> {
         add("Health");
         add("Other");
     }};
+
+    @PostConstruct
+    private void init() {
+        Set<Category> dbCategories = categoryRepository.findAllByTypeAndUpdatedBy(CategoryType.COMMON, accountUtil.getUsername());
+        dbCategories.forEach(c -> commonCategoryNames.add(c.getName()));
+    }
 
     @EventListener
     public void handleAdminInit(AdminInitEvent e) {

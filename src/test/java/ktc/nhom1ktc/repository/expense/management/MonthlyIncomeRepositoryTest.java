@@ -2,6 +2,7 @@ package ktc.nhom1ktc.repository.expense.management;
 
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.repository.RepositoryTests;
+import ktc.nhom1ktc.repository.expense.management.income.MonthlyIncomeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

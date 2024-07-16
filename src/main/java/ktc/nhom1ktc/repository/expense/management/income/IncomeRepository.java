@@ -1,4 +1,4 @@
-package ktc.nhom1ktc.repository.expense.management;
+package ktc.nhom1ktc.repository.expense.management.income;
 
 import ktc.nhom1ktc.entity.expense.management.income.Income;
 import org.springframework.data.jpa.repository.JpaRepository;

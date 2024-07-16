@@ -1,9 +1,6 @@
 package ktc.nhom1ktc.entity.expense.management.income;
 
 import jakarta.persistence.*;
-import ktc.nhom1ktc.entity.Account;
-import ktc.nhom1ktc.entity.expense.management.category.MonthlyLog;
-import ktc.nhom1ktc.entity.expense.Status;
 import lombok.*;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package ktc.nhom1ktc.controller.income;
+package ktc.nhom1ktc.controller.expense.management.income;
 
 import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
 import ktc.nhom1ktc.dto.expense.income.IncomeResponse;

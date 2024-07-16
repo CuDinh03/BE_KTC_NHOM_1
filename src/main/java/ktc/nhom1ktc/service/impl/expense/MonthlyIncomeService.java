@@ -3,7 +3,7 @@ package ktc.nhom1ktc.service.impl.expense;
 
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.event.UserLoginEvent;
-import ktc.nhom1ktc.repository.expense.management.MonthlyIncomeRepository;
+import ktc.nhom1ktc.repository.expense.management.income.MonthlyIncomeRepository;
 import ktc.nhom1ktc.service.expense.IMonthlyIncomeService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Primary
-public class MonthlyIncomeServiceService implements IMonthlyIncomeService<MonthlyIncome, UUID> {
+public class MonthlyIncomeService implements IMonthlyIncomeService<MonthlyIncome, UUID> {
 
     @Autowired
     private AccountUtil accountUtil;
