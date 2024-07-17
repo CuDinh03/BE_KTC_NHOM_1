@@ -2,6 +2,7 @@ package ktc.nhom1ktc.dto.expense.income;
 
 import ktc.nhom1ktc.entity.expense.management.income.Income;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

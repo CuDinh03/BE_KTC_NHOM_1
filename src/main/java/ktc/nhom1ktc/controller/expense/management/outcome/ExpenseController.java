@@ -41,8 +41,8 @@ public class ExpenseController {
     @PutMapping(value = {
             "/v1/expense/update"
     })
-    public ExpenseResponse update(@RequestBody IncomeRequest.UpdateRequest updateRequest) throws Exception {
-        Expense expense = expenseService.update(IncomeRequest.UpdateRequest.toExpenseRequest(updateRequest));
+    public ExpenseResponse update(@RequestBody ExpenseRequest.UpdateRequest updateRequest) throws Exception {
+        Expense expense = expenseService.update(ExpenseRequest.UpdateRequest.toExpenseRequest(updateRequest));
         return new ExpenseResponse(expense);
     }
 
