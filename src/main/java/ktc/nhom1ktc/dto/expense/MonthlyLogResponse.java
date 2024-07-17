@@ -1,8 +1,10 @@
 package ktc.nhom1ktc.dto.expense;
 
 import ktc.nhom1ktc.entity.expense.management.MonthlyLog;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -13,7 +15,10 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 //@Slf4j
+@Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MonthlyLogResponse {
     private Year year;
     private Map<Integer, MonthlyLogDetail> monthlyLogDetails;
@@ -25,6 +30,7 @@ public class MonthlyLogResponse {
         MonthlyLogDetail logDetail;
         for (MonthlyLog monthlyLog : logs) {
             logDetail = MonthlyLogDetail.builder()
+                    .monthlyLogId(monthlyLog.getId())
                     .monthlyIncomeId(monthlyLog.getMonthlyIncome().getId())
                     .incomeSum(monthlyLog.getMonthlyIncome().getIncomeSum())
                     .budget(monthlyLog.getBudget())
@@ -37,7 +43,10 @@ public class MonthlyLogResponse {
 
     @Builder
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MonthlyLogDetail {
+        private UUID monthlyLogId;
         private UUID monthlyIncomeId;
         private BigDecimal incomeSum;
         private BigDecimal budget;

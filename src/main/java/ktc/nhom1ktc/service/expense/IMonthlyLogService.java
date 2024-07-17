@@ -14,6 +14,7 @@ import java.util.UUID;
 @Service
 public interface IMonthlyLogService<T> {
 
+    @Transactional
     List<T> saveMonthlyLogs(Collection<T> logs);
 
     List<T> findAllByYear(Year year);
@@ -22,6 +23,7 @@ public interface IMonthlyLogService<T> {
 
     T findById(UUID id);
 
+    @Transactional
     T saveMonthlyLog(T log);
 
     T findByYearAndMonthAndCategoryIdAndAccountId(Year year, Month month, UUID categoryId);

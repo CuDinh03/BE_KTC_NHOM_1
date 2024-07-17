@@ -40,6 +40,7 @@ public class MonthlyLogController {
     })
     public MonthlyLogResponse setBudget(@RequestBody MonthlyLogRequest.UpdateRequest request) {
         MonthlyLog monthlyLog = monthlyLogService.setBudget(request.getId(), request.getAmount());
+        log.info("setBudget monthlyLog {}", monthlyLog);
         return new MonthlyLogResponse(monthlyLog.getYear(), List.of(monthlyLog));
     }
 }

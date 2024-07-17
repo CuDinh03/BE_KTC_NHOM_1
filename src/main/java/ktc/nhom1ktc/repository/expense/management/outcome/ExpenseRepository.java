@@ -13,7 +13,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
     Expense findByIdAndCreatedBy(UUID id, String name);
 
-    UUID deleteByIdAndCreatedBy(UUID id, String name);
+    int deleteByIdAndCreatedBy(UUID id, String name);
 
     List<Expense> findAllByDateBetweenAndCreatedBy(LocalDate start, LocalDate end, String name);
 }

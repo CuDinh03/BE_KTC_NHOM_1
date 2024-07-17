@@ -8,11 +8,15 @@ import ktc.nhom1ktc.entity.expense.management.income.Income;
 import ktc.nhom1ktc.entity.expense.management.outcome.Expense;
 import ktc.nhom1ktc.service.expense.IExpenseService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class ExpenseController {
@@ -43,6 +47,7 @@ public class ExpenseController {
     })
     public ExpenseResponse update(@RequestBody ExpenseRequest.UpdateRequest updateRequest) throws Exception {
         Expense expense = expenseService.update(ExpenseRequest.UpdateRequest.toExpenseRequest(updateRequest));
+        log.info("expense controller update expense {}", expense);
         return new ExpenseResponse(expense);
     }
 
@@ -50,6 +55,9 @@ public class ExpenseController {
             "/v1/expense/delete",
     })
     public ExpenseResponse.DeleteResponse delete(@RequestBody ExpenseRequest.DeleteRequest deleteRequest) {
-        return new ExpenseResponse.DeleteResponse(expenseService.deleteById(deleteRequest.getId()), true);
+        log.info("delete expense with deleteRequest {}", deleteRequest);
+        int deleted = expenseService.deleteById(deleteRequest.getId());
+        log.info("delete expense with deleted {}", deleted);
+        return new ExpenseResponse.DeleteResponse(deleteRequest.getId(), deleted != 0);
     }
 }

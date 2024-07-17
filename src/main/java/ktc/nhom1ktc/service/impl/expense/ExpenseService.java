@@ -101,6 +101,8 @@ public class ExpenseService implements IExpenseService<Expense> {
         }
 
         monthlyLog.setExpenseSum(monthlyLog.getExpenseSum().add(request.getAmount()));
+        monthlyLog = monthlyLogService.saveMonthlyLog(monthlyLog);
+        log.info("expense addSingle: saveMonthlyLog {}", monthlyLog);
 
         Expense expense = Expense.builder()
                 .year(year)
@@ -116,22 +118,23 @@ public class ExpenseService implements IExpenseService<Expense> {
                 .updatedBy(accountDetails.getUsername())
                 .build();
 
-        monthlyLogService.saveMonthlyLog(monthlyLog);
-        log.info("expense addSingle: saveMonthlyLog {}", monthlyLog);
+
         return expenseRepository.save(expense);
     }
 
     @Override
-    public UUID deleteById(UUID id) {
+    public int deleteById(UUID id) {
         Expense expense = expenseRepository.findByIdAndCreatedBy(id, accountUtil.getUsername());
+        log.info("deleteById expense {}", expense);
         if (ObjectUtils.isEmpty(expense)) {
             throw new RuntimeException("Expense not found by account");
         }
 
         MonthlyLog monthlyLog = monthlyLogService.findById(expense.getMonthlyLogId());
+        log.info("deleteById monthlyLog {}", monthlyLog);
         monthlyLog.setExpenseSum(monthlyLog.getExpenseSum().subtract(expense.getAmount()));
-        monthlyLogService.saveMonthlyLog(monthlyLog);
-
+        monthlyLog = monthlyLogService.saveMonthlyLog(monthlyLog);
+        log.info("deleteById monthlyLog {}", monthlyLog);
         return expenseRepository.deleteByIdAndCreatedBy(id, accountUtil.getUsername());
     }
 
@@ -165,6 +168,7 @@ public class ExpenseService implements IExpenseService<Expense> {
         boolean sameAmount = Objects.equals(lastExpense.getAmount(), expenseRequest.getAmount());
 
         MonthlyLog monthlyLog = monthlyLogService.findById(lastExpense.getMonthlyLogId());
+        log.info("expense update - last monthlyLog {}", monthlyLog);
         if (sameCatId && sameYearMonth) {
 
             if (!sameAmount) {
@@ -173,21 +177,26 @@ public class ExpenseService implements IExpenseService<Expense> {
                         .add(expenseRequest.getAmount()));
                 lastExpense.setAmount(expenseRequest.getAmount());
 
-                monthlyLogService.saveMonthlyLog(monthlyLog);
+                monthlyLog = monthlyLogService.saveMonthlyLog(monthlyLog);
+                log.info("expense update - !sameAmount last monthlyLog {}", monthlyLog);
                 lastExpense = expenseRepository.save(lastExpense);
+                log.info("expense update - !sameAmount lastExpense {}", lastExpense);
             }
             return lastExpense;
         }
 
         MonthlyLog newMonthlyLog = monthlyLogService.findByYearAndMonthAndCategoryIdAndUsername(Year.of(newYear), newMonth, lastExpense.getCategoryId());
+        log.info("expense update - newMonthlyLog {}", newMonthlyLog);
         List<MonthlyIncome> monthlyIncomeList = monthlyIncomeService.findByYearMonths(Year.of(newYear), Set.of(newMonth.getValue()));
         if (CollectionUtils.isEmpty(monthlyIncomeList)) {
             monthlyIncomeList = monthlyIncomeService.initDefaultByYear(Year.of(newYear));
+            log.info("expense update - monthlyIncomeList initDefaultByYear {}", monthlyIncomeList);
         }
 
         Map<Month, MonthlyIncome> miMap = new HashMap<>();
         monthlyIncomeList.forEach(mi -> miMap.put(mi.getMonth(), mi));
         MonthlyIncome newMonthlyIncome = miMap.get(newMonth);
+        log.info("expense update - newMonthlyIncome {}", newMonthlyIncome);
         LocalDateTime dateTime = LocalDateTime.now();
 
         if (ObjectUtils.isEmpty(newMonthlyLog)) {
@@ -204,12 +213,21 @@ public class ExpenseService implements IExpenseService<Expense> {
                     .expenseSum(BigDecimal.ZERO)
                     .budget(BigDecimal.ZERO)
                     .build();
+            log.info("expense update - newMonthlyLog {}", newMonthlyLog);
             newMonthlyLog = monthlyLogService.saveMonthlyLog(newMonthlyLog);
+            log.info("expense update - newMonthlyLog {}", newMonthlyLog);
         }
 
         monthlyLog.setExpenseSum(monthlyLog.getExpenseSum().subtract(lastExpense.getAmount()));
+        monthlyLog.setUpdatedAt(dateTime);
+        monthlyLog = monthlyLogService.saveMonthlyLog(monthlyLog);
+        log.info("expense update - last monthlyLog subtracted {}", monthlyLog);
         newMonthlyLog.setExpenseSum(newMonthlyLog.getExpenseSum().add(expenseRequest.getAmount()));
-        monthlyLogService.saveMonthlyLogs(Set.of(monthlyLog, newMonthlyLog));
+        newMonthlyLog.setUpdatedAt(dateTime);
+        newMonthlyLog = monthlyLogService.saveMonthlyLog(newMonthlyLog);
+        log.info("expense update - new monthlyLog added {}", newMonthlyLog);
+//        List<MonthlyLog> monthlyLogs = monthlyLogService.saveMonthlyLogs(Set.of(monthlyLog, newMonthlyLog));
+//        log.info("expense update - saved last and new MonthlyLogs {}", monthlyLogs);
 
         lastExpense.setCategoryId(expenseRequest.getCategoryId());
         lastExpense.setYear(Year.of(newYear));

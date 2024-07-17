@@ -28,6 +28,7 @@ public class MonthlyLogService implements IMonthlyLogService<MonthlyLog> {
     private MonthlyLogRepository monthlyLogRepository;
     private AccountUtil accountUtil;
 
+    @Transactional
     @Override
     public List<MonthlyLog> saveMonthlyLogs(Collection<MonthlyLog> logs) {
         return monthlyLogRepository.saveAll(logs);
@@ -68,9 +69,12 @@ public class MonthlyLogService implements IMonthlyLogService<MonthlyLog> {
         return monthlyLogRepository.findByYearAndMonthAndCategoryIdAndCreatedBy(year, month, id, accountUtil.getUsername());
     }
 
+    @Transactional
     @Override
     public MonthlyLog setBudget(UUID id, BigDecimal budget) {
-        return monthlyLogRepository.setBudget(id, accountUtil.getUsername(), budget);
+        log.info("setBudget id {}", id);
+        monthlyLogRepository.setBudget(id, accountUtil.getUsername(), budget);
+        return monthlyLogRepository.findById(id).orElseThrow();
     }
 
 }

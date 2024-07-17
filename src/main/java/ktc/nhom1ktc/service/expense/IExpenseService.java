@@ -16,7 +16,7 @@ public interface IExpenseService<T> {
     T addSingle(ExpenseRequest request);
 
     @Transactional
-    UUID deleteById(UUID id);
+    int deleteById(UUID id);
 
     List<T> findByYear(int year);
 

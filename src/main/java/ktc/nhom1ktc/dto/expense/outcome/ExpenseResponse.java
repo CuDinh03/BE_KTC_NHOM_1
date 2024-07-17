@@ -32,6 +32,8 @@ public class ExpenseResponse {
         this.date = expense.getDate();
     }
 
+    @Data
+    @NoArgsConstructor
     public static class ExpenseListResponse {
         private Map<Integer, List<ExpenseResponse>> expenses;
 
@@ -56,7 +58,9 @@ public class ExpenseResponse {
         }
     }
 
+    @Builder
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class DeleteResponse {
         private UUID id;

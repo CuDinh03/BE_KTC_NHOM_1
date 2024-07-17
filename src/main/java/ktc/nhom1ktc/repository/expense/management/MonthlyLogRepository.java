@@ -30,7 +30,7 @@ public interface MonthlyLogRepository extends JpaRepository<MonthlyLog, UUID> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE MonthlyLog ml SET ml.budget = :budget WHERE ml.id = :id AND ml.createdBy = :createdBy")
-    MonthlyLog setBudget(@Param("id") UUID id,
+    int setBudget(@Param("id") UUID id,
                          @Param("createdBy") String name,
                          @Param("budget") BigDecimal budget);
 
