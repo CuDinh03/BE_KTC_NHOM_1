@@ -6,10 +6,7 @@ import ktc.nhom1ktc.entity.expense.management.MonthlyLog;
 import ktc.nhom1ktc.service.expense.IMonthlyLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,5 +33,13 @@ public class MonthlyLogController {
     public MonthlyLogResponse getByYearMonths(@RequestBody MonthlyLogRequest request) {
         List<MonthlyLog> logs = monthlyLogService.findAllByYearMonths(request.getYear(), request.getMonths());
         return new MonthlyLogResponse(request.getYear(), logs);
+    }
+
+    @PutMapping(value = {
+            "/v1/monthly-log/set-budget"
+    })
+    public MonthlyLogResponse setBudget(@RequestBody MonthlyLogRequest.UpdateRequest request) {
+        MonthlyLog monthlyLog = monthlyLogService.setBudget(request.getId(), request.getAmount());
+        return new MonthlyLogResponse(monthlyLog.getYear(), List.of(monthlyLog));
     }
 }

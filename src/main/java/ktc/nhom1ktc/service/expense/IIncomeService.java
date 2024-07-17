@@ -7,15 +7,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public interface IIncomeService<T> {
 
+    List<T> findByYear(int year);
+
+    @Transactional
     T addSingle(T t);
 
+    @Transactional
     T addSingle(IncomeRequest request) throws Exception;
 
+    @Transactional
     T addSingle(BigDecimal amount, LocalDate date) throws Exception;
 
     @Transactional

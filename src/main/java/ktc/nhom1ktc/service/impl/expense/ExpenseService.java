@@ -1,11 +1,13 @@
 package ktc.nhom1ktc.service.impl.expense;
 
+import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
 import ktc.nhom1ktc.dto.expense.outcome.ExpenseRequest;
 import ktc.nhom1ktc.entity.expense.management.MonthlyLog;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
 import ktc.nhom1ktc.entity.expense.management.category.CategoryType;
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.entity.expense.management.outcome.Expense;
+import ktc.nhom1ktc.event.UserLoginEvent;
 import ktc.nhom1ktc.repository.expense.management.outcome.ExpenseRepository;
 import ktc.nhom1ktc.service.expense.IExpenseService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
@@ -14,14 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Primary
@@ -39,7 +42,7 @@ public class ExpenseService implements IExpenseService<Expense> {
         return expenseRepository.save(expense);
     }
 
-    @Transactional
+//    @Transactional
     @Override
     public Expense addSingle(ExpenseRequest request) {
         Year year = Year.of(request.getDate().getYear());
@@ -116,5 +119,106 @@ public class ExpenseService implements IExpenseService<Expense> {
         monthlyLogService.saveMonthlyLog(monthlyLog);
         log.info("expense addSingle: saveMonthlyLog {}", monthlyLog);
         return expenseRepository.save(expense);
+    }
+
+    @Override
+    public UUID deleteById(UUID id) {
+        Expense expense = expenseRepository.findByIdAndCreatedBy(id, accountUtil.getUsername());
+        if (ObjectUtils.isEmpty(expense)) {
+            throw new RuntimeException("Expense not found by account");
+        }
+
+        MonthlyLog monthlyLog = monthlyLogService.findById(expense.getMonthlyLogId());
+        monthlyLog.setExpenseSum(monthlyLog.getExpenseSum().subtract(expense.getAmount()));
+        monthlyLogService.saveMonthlyLog(monthlyLog);
+
+        return expenseRepository.deleteByIdAndCreatedBy(id, accountUtil.getUsername());
+    }
+
+    @Override
+    public List<Expense> findByYear(int year) {
+        LocalDate start = Year.of(year).atDay(1);
+        LocalDate end = Year.of(year).plusYears(1).atDay(1).minusDays(1);
+        return expenseRepository.findAllByDateBetweenAndCreatedBy(start, end, accountUtil.getUsername());
+    }
+
+    @Override
+    public Expense findById(UUID id) {
+        return expenseRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public Expense update(ExpenseRequest expenseRequest) {
+        Expense lastExpense = expenseRepository.findByIdAndCreatedBy(expenseRequest.getId(), accountUtil.getUsername());
+        if (ObjectUtils.isEmpty(lastExpense)) {
+            throw new RuntimeException("Expense not found by account");
+        }
+        int lastYear = lastExpense.getYear().getValue();
+        Month lastMonth = lastExpense.getMonth();
+
+        LocalDate newDate = expenseRequest.getDate();
+        int newYear = newDate.getYear();
+        Month newMonth = newDate.getMonth();
+
+        boolean sameCatId = lastExpense.getCategoryId() == expenseRequest.getCategoryId();
+        boolean sameYearMonth = lastYear == newYear && lastMonth == newMonth;
+        boolean sameAmount = Objects.equals(lastExpense.getAmount(), expenseRequest.getAmount());
+
+        MonthlyLog monthlyLog = monthlyLogService.findById(lastExpense.getMonthlyLogId());
+        if (sameCatId && sameYearMonth) {
+
+            if (!sameAmount) {
+                monthlyLog.setExpenseSum(monthlyLog.getExpenseSum()
+                        .subtract(lastExpense.getAmount())
+                        .add(expenseRequest.getAmount()));
+                lastExpense.setAmount(expenseRequest.getAmount());
+
+                monthlyLogService.saveMonthlyLog(monthlyLog);
+                lastExpense = expenseRepository.save(lastExpense);
+            }
+            return lastExpense;
+        }
+
+        MonthlyLog newMonthlyLog = monthlyLogService.findByYearAndMonthAndCategoryIdAndUsername(Year.of(newYear), newMonth, lastExpense.getCategoryId());
+        List<MonthlyIncome> monthlyIncomeList = monthlyIncomeService.findByYearMonths(Year.of(newYear), Set.of(newMonth.getValue()));
+        if (CollectionUtils.isEmpty(monthlyIncomeList)) {
+            monthlyIncomeList = monthlyIncomeService.initDefaultByYear(Year.of(newYear));
+        }
+
+        Map<Month, MonthlyIncome> miMap = new HashMap<>();
+        monthlyIncomeList.forEach(mi -> miMap.put(mi.getMonth(), mi));
+        MonthlyIncome newMonthlyIncome = miMap.get(newMonth);
+        LocalDateTime dateTime = LocalDateTime.now();
+
+        if (ObjectUtils.isEmpty(newMonthlyLog)) {
+            newMonthlyLog = MonthlyLog.builder()
+                    .year(Year.of(newYear))
+                    .month(newMonth)
+                    .accountId(newMonthlyIncome.getAccountId())
+                    .categoryId(expenseRequest.getCategoryId())
+                    .monthlyIncome(newMonthlyIncome)
+                    .createdBy(accountUtil.getUsername())
+                    .updatedBy(accountUtil.getUsername())
+                    .createdAt(dateTime)
+                    .updatedAt(dateTime)
+                    .expenseSum(BigDecimal.ZERO)
+                    .budget(BigDecimal.ZERO)
+                    .build();
+            newMonthlyLog = monthlyLogService.saveMonthlyLog(newMonthlyLog);
+        }
+
+        monthlyLog.setExpenseSum(monthlyLog.getExpenseSum().subtract(lastExpense.getAmount()));
+        newMonthlyLog.setExpenseSum(newMonthlyLog.getExpenseSum().add(expenseRequest.getAmount()));
+        monthlyLogService.saveMonthlyLogs(Set.of(monthlyLog, newMonthlyLog));
+
+        lastExpense.setCategoryId(expenseRequest.getCategoryId());
+        lastExpense.setYear(Year.of(newYear));
+        lastExpense.setMonth(newMonth);
+        lastExpense.setDate(newDate);
+        lastExpense.setAmount(expenseRequest.getAmount());
+        lastExpense.setMonthlyLogId(newMonthlyLog.getId());
+        lastExpense.setUpdatedAt(dateTime);
+
+        return expenseRepository.save(lastExpense);
     }
 }

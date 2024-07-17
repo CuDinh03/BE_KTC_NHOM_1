@@ -4,6 +4,9 @@ import ktc.nhom1ktc.dto.expense.outcome.ExpenseRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public interface IExpenseService<T> {
 
@@ -11,4 +14,14 @@ public interface IExpenseService<T> {
 
     @Transactional
     T addSingle(ExpenseRequest request);
+
+    @Transactional
+    UUID deleteById(UUID id);
+
+    List<T> findByYear(int year);
+
+    T findById(UUID id);
+
+    @Transactional
+    T update(ExpenseRequest expenseRequest);
 }

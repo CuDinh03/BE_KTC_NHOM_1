@@ -2,12 +2,14 @@ package ktc.nhom1ktc.dto.expense.income;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Builder
 @Data
 public class IncomeRequest {
     private UUID id;
@@ -19,11 +21,11 @@ public class IncomeRequest {
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    public IncomeRequest(UpdateRequest request) {
-        this.id = request.getId();
-        this.amount = request.getAmount();
-        this.date = request.getDate();
-    }
+//    public IncomeRequest(UpdateRequest request) {
+//        this.id = request.getId();
+//        this.amount = request.getAmount();
+//        this.date = request.getDate();
+//    }
 
     @Data
     public static class UpdateRequest {
@@ -32,6 +34,10 @@ public class IncomeRequest {
         @PositiveOrZero
         private BigDecimal amount;
         private LocalDate date;
+
+        public static IncomeRequest toExpenseRequest(UpdateRequest request) {
+            return new IncomeRequest(request.getId(), request.getAmount(), request.getDate());
+        }
     }
 
     @Data

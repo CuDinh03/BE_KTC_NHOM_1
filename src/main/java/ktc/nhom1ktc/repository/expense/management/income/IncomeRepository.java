@@ -8,10 +8,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface IncomeRepository extends JpaRepository<Income, UUID> {
+
+    List<Income> findAllByDateBetweenAndCreatedBy(LocalDate start, LocalDate end, String name);
+
     Income findByIdAndCreatedBy(UUID id, String name);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)

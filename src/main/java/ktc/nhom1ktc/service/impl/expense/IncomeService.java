@@ -12,6 +12,7 @@ import ktc.nhom1ktc.service.expense.IIncomeService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -34,12 +35,20 @@ public class IncomeService implements IIncomeService<Income> {
     private AccountUtil accountUtil;
 
     @Override
+    public List<Income> findByYear(int year) {
+        LocalDate start = Year.of(year).atDay(1);
+        LocalDate end = Year.of(year).plusYears(1).atDay(1).minusDays(1);
+        return incomeRepository.findAllByDateBetweenAndCreatedBy(start, end, accountUtil.getUsername());
+    }
+
+    @Override
     public Income addSingle(Income income) {
         return incomeRepository.save(income);
     }
 
     @Override
     public Income addSingle(IncomeRequest request) throws Exception {
+        log.info("addSingle {}", request);
         return incomeRepository.save(buildIncome(request.getAmount(), request.getDate()));
     }
 
@@ -127,9 +136,10 @@ public class IncomeService implements IIncomeService<Income> {
 
     private Income buildIncome(BigDecimal amount, LocalDate date) throws Exception {
         final String username = accountUtil.getUsername();
+        log.info("buildIncome username {}", username);
         final List<MonthlyIncome> monthlyIncomes = monthlyIncomeRepository.findByCreatedByAndYearAndMonthIn(username,
                 Year.of(date.getYear()), Collections.singleton(date.getMonth()));
-
+        log.info("buildIncome monthlyIncomes {}", monthlyIncomes);
         if (ObjectUtils.isEmpty(monthlyIncomes)) {
             throw new IncomeDateNotExistedInMonthlyIncomeException(
                     ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(date.getYear(), date.getMonth()));

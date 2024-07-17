@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -65,6 +66,22 @@ public class MonthlyIncomeService implements IMonthlyIncomeService<MonthlyIncome
         monthlyIncomeRepository.saveAll(monthlyIncomes);
 
         return true;
+    }
+
+    public List<MonthlyIncome> initDefaultByYear(Year year) {
+        AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(accountUtil.getUsername());
+        UUID accountId = accountDetails.getId();
+        if (ObjectUtils.isEmpty(accountDetails)) {
+            throw new RuntimeException("Username not found");
+        }
+
+        boolean existed = monthlyIncomeRepository.existsByAccountIdAndYear(accountId, year);
+        if (existed) {
+            throw new RuntimeException("Monthly Income list of " + year + " already existed");
+        }
+
+        List<MonthlyIncome> monthlyIncomes = initDefaultMonthlyIncomes(accountId, accountDetails.getUsername());
+        return monthlyIncomeRepository.saveAll(monthlyIncomes);
     }
 
     private List<MonthlyIncome> initDefaultMonthlyIncomes(UUID id, String name) {

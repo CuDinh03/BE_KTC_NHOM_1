@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Month;
 import java.time.Year;
 import java.util.Collection;
@@ -45,6 +46,11 @@ public class MonthlyLogService implements IMonthlyLogService<MonthlyLog> {
         return monthlyLogRepository.findAllByYearAndCreatedByAndMonthIn(year, accountUtil.getUsername(), monthSet);
     }
 
+    @Override
+    public MonthlyLog findById(UUID id) {
+        return monthlyLogRepository.findById(id).orElseThrow();
+    }
+
     @Transactional
     @Override
     public MonthlyLog saveMonthlyLog(MonthlyLog monthlyLog) {
@@ -60,6 +66,11 @@ public class MonthlyLogService implements IMonthlyLogService<MonthlyLog> {
     @Override
     public MonthlyLog findByYearAndMonthAndCategoryIdAndUsername(Year year, Month month, UUID id) {
         return monthlyLogRepository.findByYearAndMonthAndCategoryIdAndCreatedBy(year, month, id, accountUtil.getUsername());
+    }
+
+    @Override
+    public MonthlyLog setBudget(UUID id, BigDecimal budget) {
+        return monthlyLogRepository.setBudget(id, accountUtil.getUsername(), budget);
     }
 
 }
