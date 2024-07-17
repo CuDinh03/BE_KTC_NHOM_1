@@ -1,6 +1,7 @@
 package ktc.nhom1ktc.controller;
 
 import ktc.nhom1ktc.dto.ApiResponse;
+import ktc.nhom1ktc.dto.UserRequest;
 import ktc.nhom1ktc.entity.Users;
 import ktc.nhom1ktc.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,22 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
-    @GetMapping("/{id}")
-    public ApiResponse<Users> getUserById(@PathVariable UUID id) {
+    @GetMapping("/getById")
+    public ApiResponse<Users> getUserById(@RequestBody UserRequest userIdRequest) {
+        UUID id = userIdRequest.getId();
         Users user = userService.getByID(id);
+        if (user == null) {
+            return ApiResponse.<Users>builder()
+                    .code(404)
+                    .message("User not found")
+                    .build();
+        }
         return ApiResponse.<Users>builder()
                 .code(1000)
                 .result(user)
                 .build();
     }
+
 
     @PostMapping
     public ApiResponse<Users> createUser(@RequestBody Users user) {
