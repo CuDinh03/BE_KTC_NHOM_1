@@ -19,9 +19,9 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
-    @GetMapping("/getById")
-    public ApiResponse<Users> getUserById(@RequestBody UserRequest userIdRequest) {
-        UUID id = userIdRequest.getId();
+    @GetMapping("/{id}")
+    public ApiResponse<Users> getUserById(@PathVariable("id") UUID id) {
+//        UUID id = userIdRequest.getId();
         Users user = userService.getByID(id);
         if (user == null) {
             return ApiResponse.<Users>builder()
