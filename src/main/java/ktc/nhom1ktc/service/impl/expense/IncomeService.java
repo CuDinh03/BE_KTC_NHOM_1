@@ -144,13 +144,18 @@ public class IncomeService implements IIncomeService<Income> {
             throw new IncomeDateNotExistedInMonthlyIncomeException(
                     ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(date.getYear(), date.getMonth()));
         }
-
-        final AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(username);
         final LocalDateTime dateTime = LocalDateTime.now();
+        final AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(username);
+
+        MonthlyIncome targetMI = monthlyIncomes.stream().filter(mi -> mi.getMonth() == date.getMonth()).findFirst().orElseThrow();
+        targetMI.setIncomeSum(targetMI.getIncomeSum().add(amount));
+        targetMI.setUpdatedAt(dateTime);
+        targetMI.setUpdatedBy(accountDetails.getUsername());
+        targetMI = monthlyIncomeRepository.save(targetMI);
 
         return Income.builder()
                 .accountId(accountDetails.getId())
-                .monthlyIncomeId(monthlyIncomes.get(0).getId())
+                .monthlyIncomeId(targetMI.getId())
                 .date(date)
                 .amount(amount)
                 .createdAt(dateTime)
