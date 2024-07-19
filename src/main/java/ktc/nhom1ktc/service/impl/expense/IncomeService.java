@@ -4,15 +4,14 @@ import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
 import ktc.nhom1ktc.entity.expense.management.income.Income;
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.exception.ErrorCode;
-import ktc.nhom1ktc.exception.expense.IncomeDateNotExistedInMonthlyIncomeException;
-import ktc.nhom1ktc.exception.expense.IncomeObjectNotFoundForAccountException;
+import ktc.nhom1ktc.exception.expense.income.IncomeDateNotExistedInMonthlyIncomeException;
+import ktc.nhom1ktc.exception.expense.income.IncomeObjectNotFoundForAccountException;
 import ktc.nhom1ktc.repository.expense.management.income.IncomeRepository;
 import ktc.nhom1ktc.repository.expense.management.income.MonthlyIncomeRepository;
 import ktc.nhom1ktc.service.expense.IIncomeService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -70,7 +69,7 @@ public class IncomeService implements IIncomeService<Income> {
 //        MonthlyIncome requestedMI = monthlyIncomeRepository.findByIdAndCreatedByAndYearAndMonth(lastIncome.getMonthlyIncomeId(), accountUtil.getUsername(), year, month);
         MonthlyIncome requestedMI = monthlyIncomeRepository.findByCreatedByAndYearAndMonthIn(accountUtil.getUsername(), year, Collections.singleton(month))
                 .stream().findFirst()
-                .orElseThrow(() -> new IncomeDateNotExistedInMonthlyIncomeException(ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(year.getValue(), month)));
+                .orElseThrow(() -> new IncomeDateNotExistedInMonthlyIncomeException(YearMonth.of(year.getValue(), month)));
         log.info("findByIdAndCreatedByAndYearAndMonth {}", requestedMI);
 //        if (ObjectUtils.isEmpty(requestedMI)) {
 //            throw new IncomeDateNotExistedInMonthlyIncomeException(ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(year.getValue(), month));
@@ -143,8 +142,7 @@ public class IncomeService implements IIncomeService<Income> {
                 Year.of(date.getYear()), Collections.singleton(date.getMonth()));
         log.info("buildIncome monthlyIncomes {}", monthlyIncomes);
         if (ObjectUtils.isEmpty(monthlyIncomes)) {
-            throw new IncomeDateNotExistedInMonthlyIncomeException(
-                    ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(date.getYear(), date.getMonth()));
+            throw new IncomeDateNotExistedInMonthlyIncomeException(YearMonth.of(date.getYear(), date.getMonth()));
         }
         final LocalDateTime dateTime = LocalDateTime.now();
         final AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(username);

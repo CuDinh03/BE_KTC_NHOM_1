@@ -20,6 +20,8 @@ public enum ErrorCode {
     EMAIL_NOT_FOUND(1011,"Khong tim thay mail" ,HttpStatus.NOT_FOUND ),
     INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME(1012, "Income date was not recorded by monthly income", HttpStatus.BAD_REQUEST),
     INCOME_OBJECT_NOT_FOUND_FOR_ACCOUNT(1013, "Income object was not found for account", HttpStatus.NOT_FOUND),
+    BLANK_OR_EMPTY_CATEGORY_NAME(1014, "Black or empty category name", HttpStatus.BAD_REQUEST),
+    DUPLICATE_CATEGORY_NAME(1015, "Duplicate category name", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
