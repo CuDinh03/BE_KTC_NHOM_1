@@ -31,5 +31,5 @@ public interface IIncomeService<T> {
     T update(T t);
 
     @Transactional
-    UUID deleteById(UUID request) throws Exception;
+    int deleteById(UUID request) throws Exception;
 }

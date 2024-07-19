@@ -118,7 +118,7 @@ public class IncomeService implements IIncomeService<Income> {
     }
 
     @Override
-    public UUID deleteById(UUID id) throws IncomeObjectNotFoundForAccountException {
+    public int deleteById(UUID id) throws IncomeObjectNotFoundForAccountException {
         Income lastIncome = incomeRepository.findByIdAndCreatedBy(id, accountUtil.getUsername());
         log.info("deleteById findByIdAndCreatedBy {}", lastIncome);
         if (ObjectUtils.isEmpty(lastIncome) || 0 == incomeRepository.deleteByIdAndCreatedBy(id, accountUtil.getUsername())) {
@@ -129,9 +129,11 @@ public class IncomeService implements IIncomeService<Income> {
                 .orElseThrow(() -> new RuntimeException("MonthlyIncome not found"));
         log.info("deleteById findById {}", lastMI);
         lastMI.setIncomeSum(lastMI.getIncomeSum().subtract(lastIncome.getAmount()));
-        monthlyIncomeRepository.save(lastMI);
+        lastMI.setUpdatedAt(LocalDateTime.now());
+        lastMI.setUpdatedBy(accountUtil.getUsername());
+        lastMI = monthlyIncomeRepository.save(lastMI);
 
-        return id;
+        return ObjectUtils.isEmpty(lastMI) ? 0 : 1;
     }
 
     private Income buildIncome(BigDecimal amount, LocalDate date) throws Exception {

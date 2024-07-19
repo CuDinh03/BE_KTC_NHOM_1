@@ -43,6 +43,7 @@ public class IncomeController {
             "/v1/income/delete"
     })
     public IncomeResponse.DeleteResponse delete(@RequestBody IncomeRequest.DeleteRequest deleteRequest) throws Exception {
-        return new IncomeResponse.DeleteResponse(incomeService.deleteById(deleteRequest.getId()), true);
+        int result = incomeService.deleteById(deleteRequest.getId());
+        return new IncomeResponse.DeleteResponse(deleteRequest.getId(), result == 1);
     }
 }
