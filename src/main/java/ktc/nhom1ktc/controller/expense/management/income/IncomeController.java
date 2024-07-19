@@ -4,11 +4,13 @@ import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
 import ktc.nhom1ktc.dto.expense.income.IncomeResponse;
 import ktc.nhom1ktc.entity.expense.management.income.Income;
 import ktc.nhom1ktc.service.expense.IIncomeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class IncomeController {
@@ -43,6 +45,7 @@ public class IncomeController {
             "/v1/income/delete"
     })
     public IncomeResponse.DeleteResponse delete(@RequestBody IncomeRequest.DeleteRequest deleteRequest) throws Exception {
+        log.info("delete income request {}", deleteRequest);
         int result = incomeService.deleteById(deleteRequest.getId());
         return new IncomeResponse.DeleteResponse(deleteRequest.getId(), result == 1);
     }

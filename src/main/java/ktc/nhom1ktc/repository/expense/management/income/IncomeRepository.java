@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,5 +25,6 @@ public interface IncomeRepository extends JpaRepository<Income, UUID> {
     int setAmount(@Param("id") UUID id,
                   @Param("amount") BigDecimal amount);
 
+    @Transactional
     int deleteByIdAndCreatedBy(UUID id, String name);
 }

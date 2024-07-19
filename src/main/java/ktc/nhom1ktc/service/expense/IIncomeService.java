@@ -1,7 +1,6 @@
 package ktc.nhom1ktc.service.expense;
 
 import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
-import ktc.nhom1ktc.exception.expense.IncomeObjectNotFoundForAccountException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
