@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Primary
-public class MonthlyIncomeService implements IMonthlyIncomeService<MonthlyIncome, UUID> {
+public class MonthlyIncomeService implements IMonthlyIncomeService<MonthlyIncome> {
 
     @Autowired
     private AccountUtil accountUtil;
@@ -38,13 +38,15 @@ public class MonthlyIncomeService implements IMonthlyIncomeService<MonthlyIncome
         return monthlyIncomeRepository.saveAll(mISet);
     }
 
+    @Override
     public List<MonthlyIncome> findAllByYear(Year year) {
         return monthlyIncomeRepository.findAllByCreatedByAndYear(accountUtil.getUsername(), year);
     }
 
-    public List<MonthlyIncome> findByYearMonths(Year year, Set<Integer> months) {
-        Set<Month> monthSet = months.stream().map(Month::of).collect(Collectors.toSet());
-        return monthlyIncomeRepository.findByCreatedByAndYearAndMonthIn(accountUtil.getUsername(), year, monthSet);
+    @Override
+    public List<MonthlyIncome> findByYearMonths(Year year, Set<Month> months) {
+//        Set<Month> monthSet = months.stream().map(Month::of).collect(Collectors.toSet());
+        return monthlyIncomeRepository.findByCreatedByAndYearAndMonthIn(accountUtil.getUsername(), year, months);
     }
 
     public boolean updateIncomeSum(Year year, Month month, BigDecimal sum) {

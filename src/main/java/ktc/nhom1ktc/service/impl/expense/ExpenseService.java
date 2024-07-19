@@ -83,7 +83,7 @@ public class ExpenseService implements IExpenseService<Expense> {
 
         LocalDateTime dateTime = LocalDateTime.now();
         if (ObjectUtils.isEmpty(monthlyLog)) {
-            MonthlyIncome mIncome = monthlyIncomeService.findByYearMonths(year, Collections.singleton(month.getValue())).get(0);
+            MonthlyIncome mIncome = monthlyIncomeService.findByYearMonths(year, Collections.singleton(month)).get(0);
             log.info("expense addSingle: monthlyIncome {}", mIncome);
             monthlyLog = MonthlyLog.builder()
                     .year(year)
@@ -187,7 +187,7 @@ public class ExpenseService implements IExpenseService<Expense> {
 
         MonthlyLog newMonthlyLog = monthlyLogService.findByYearAndMonthAndCategoryIdAndUsername(Year.of(newYear), newMonth, lastExpense.getCategoryId());
         log.info("expense update - newMonthlyLog {}", newMonthlyLog);
-        List<MonthlyIncome> monthlyIncomeList = monthlyIncomeService.findByYearMonths(Year.of(newYear), Set.of(newMonth.getValue()));
+        List<MonthlyIncome> monthlyIncomeList = monthlyIncomeService.findByYearMonths(Year.of(newYear), Set.of(newMonth));
         if (CollectionUtils.isEmpty(monthlyIncomeList)) {
             monthlyIncomeList = monthlyIncomeService.initDefaultByYear(Year.of(newYear));
             log.info("expense update - monthlyIncomeList initDefaultByYear {}", monthlyIncomeList);
