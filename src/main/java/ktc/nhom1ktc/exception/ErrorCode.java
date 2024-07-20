@@ -18,10 +18,13 @@ public enum ErrorCode {
     INVALID_TOKEN(1009, "Khong tim thay token",HttpStatus.NOT_FOUND ),
     EXPIRED_TOKEN(1010,"Token da het han",HttpStatus.BAD_REQUEST),
     EMAIL_NOT_FOUND(1011,"Khong tim thay mail" ,HttpStatus.NOT_FOUND ),
-    INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME(1012, "Income date was not recorded by monthly income", HttpStatus.BAD_REQUEST),
-    INCOME_OBJECT_NOT_FOUND_FOR_ACCOUNT(1013, "Income object was not found for account", HttpStatus.NOT_FOUND),
-    BLANK_OR_EMPTY_CATEGORY_NAME(1014, "Black or empty category name", HttpStatus.BAD_REQUEST),
-    DUPLICATE_CATEGORY_NAME(1015, "Duplicate category name", HttpStatus.BAD_REQUEST),
+    INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME(2012, "Income date was not recorded by monthly income", HttpStatus.BAD_REQUEST),
+    INCOME_OBJECT_NOT_FOUND_FOR_ACCOUNT(2013, "Income object was not found for account", HttpStatus.NOT_FOUND),
+    BLANK_OR_EMPTY_CATEGORY_NAME(2014, "Black or empty category name", HttpStatus.BAD_REQUEST),
+    DUPLICATE_CATEGORY_NAME(2015, "Duplicate category name", HttpStatus.BAD_REQUEST),
+    EXPENSE_YEAR_EXCEPTION(2016, "Expense year to set must be current year", HttpStatus.BAD_REQUEST),
+    CATEGORY_ID_NOT_CREATED_BY_ACCOUNT_EXCEPTION(2017, "Category does not belong to current account", HttpStatus.BAD_REQUEST),
+    EXPENSE_ID_NOT_CREATED_BY_ACCOUNT_EXCEPTION(2018, "Expense does not belong to current account", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

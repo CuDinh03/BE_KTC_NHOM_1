@@ -1,13 +1,14 @@
 package ktc.nhom1ktc.service.impl.expense;
 
-import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
 import ktc.nhom1ktc.dto.expense.outcome.ExpenseRequest;
 import ktc.nhom1ktc.entity.expense.management.MonthlyLog;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
 import ktc.nhom1ktc.entity.expense.management.category.CategoryType;
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.entity.expense.management.outcome.Expense;
-import ktc.nhom1ktc.event.UserLoginEvent;
+import ktc.nhom1ktc.exception.expense.category.CategoryNotCreatedByAccountException;
+import ktc.nhom1ktc.exception.expense.outcome.ExpenseNotCreatedByAccountException;
+import ktc.nhom1ktc.exception.expense.outcome.ExpenseYearException;
 import ktc.nhom1ktc.repository.expense.management.outcome.ExpenseRepository;
 import ktc.nhom1ktc.service.expense.IExpenseService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
@@ -15,7 +16,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -44,10 +44,11 @@ public class ExpenseService implements IExpenseService<Expense> {
 
 //    @Transactional
     @Override
-    public Expense addSingle(ExpenseRequest request) {
+    public Expense addSingle(ExpenseRequest request) throws Exception {
         Year year = Year.of(request.getDate().getYear());
         if (!Year.now().equals(year)) {
-            throw new RuntimeException("Year of date has to be " + Year.now());
+            throw new ExpenseYearException();
+//            throw new RuntimeException("Year of date has to be " + Year.now());
         }
         Month month = request.getDate().getMonth();
         UUID catId = request.getCategoryId();
@@ -73,7 +74,8 @@ public class ExpenseService implements IExpenseService<Expense> {
         log.info("expense addSingle findOneByCategoryId {}", catId);
         if (!category.getUpdatedBy().equals(accountUtil.getUsername()) && category.getType() != CategoryType.COMMON) {
             log.info("expense addSingle: category {} does not belong to account {}", catId, accountUtil.getUsername());
-            throw new RuntimeException("Category not found by account");
+            throw new CategoryNotCreatedByAccountException();
+//            throw new RuntimeException("Category not found by account");
         }
 
         AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(accountUtil.getUsername());
@@ -123,11 +125,12 @@ public class ExpenseService implements IExpenseService<Expense> {
     }
 
     @Override
-    public int deleteById(UUID id) {
+    public int deleteById(UUID id) throws Exception {
         Expense expense = expenseRepository.findByIdAndCreatedBy(id, accountUtil.getUsername());
         log.info("deleteById expense {}", expense);
         if (ObjectUtils.isEmpty(expense)) {
-            throw new RuntimeException("Expense not found by account");
+            throw new ExpenseNotCreatedByAccountException();
+//            throw new RuntimeException("Expense not found by account");
         }
 
         MonthlyLog monthlyLog = monthlyLogService.findById(expense.getMonthlyLogId());
@@ -151,10 +154,11 @@ public class ExpenseService implements IExpenseService<Expense> {
     }
 
     @Override
-    public Expense update(ExpenseRequest expenseRequest) {
+    public Expense update(ExpenseRequest expenseRequest) throws Exception {
         Expense lastExpense = expenseRepository.findByIdAndCreatedBy(expenseRequest.getId(), accountUtil.getUsername());
         if (ObjectUtils.isEmpty(lastExpense)) {
-            throw new RuntimeException("Expense not found by account");
+            throw new ExpenseNotCreatedByAccountException();
+//            throw new RuntimeException("Expense not found by account");
         }
         int lastYear = lastExpense.getYear().getValue();
         Month lastMonth = lastExpense.getMonth();
