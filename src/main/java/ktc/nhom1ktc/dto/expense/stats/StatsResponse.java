@@ -17,8 +17,8 @@ import java.util.UUID;
 public class StatsResponse {
 //    private Map<UUID, ConcurrentMap<Integer, List<MonthlyLog>>> monthsByCategory;
 //    private Map<Integer, ConcurrentMap<UUID, List<MonthlyLog>>> categoriesByMonth;
-    private Map<UUID, LogByMonthResponse> monthsByCategory2;
-    private Map<Integer, TreeMap<UUID, LogByCategoryResponse>> categoriesByMonth2;
+    private Map<UUID, LogByMonthResponse> monthsByCategory;
+    private Map<Integer, TreeMap<UUID, LogByCategoryResponse>> categoriesByMonth;
 
     @Builder
     @Data

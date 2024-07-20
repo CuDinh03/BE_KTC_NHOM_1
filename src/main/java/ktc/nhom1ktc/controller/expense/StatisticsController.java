@@ -53,7 +53,7 @@ public class StatisticsController {
 //                        Collectors.groupingByConcurrent(l -> l.getMonth().getValue()))));
 //        log.info("monthsByCategory {}", monthsByCategory);
 
-        var monthsByCategory2 = monthlyLogList.parallelStream()
+        var monthsByCategory = monthlyLogList.parallelStream()
                 .collect(Collectors.groupingByConcurrent(MonthlyLog::getCategoryId,
                         Collectors.collectingAndThen(Collectors.toSet(), set -> {
                             Map<Integer, MonthlyLog> logs = new TreeMap<>();
@@ -71,16 +71,16 @@ public class StatisticsController {
 //                        Collectors.groupingByConcurrent(MonthlyLog::getCategoryId)));
 //        log.info("categoriesByMonth {}", categoriesByMonth);
 
-        var categoriesByMonth2 = monthlyLogList.parallelStream()
+        var categoriesByMonth = monthlyLogList.parallelStream()
                 .collect(Collectors.groupingByConcurrent(l -> l.getMonth().getValue(),
                         Collectors.collectingAndThen(Collectors.toMap(MonthlyLog::getCategoryId, l -> new StatsResponse.LogByCategoryResponse(catMap.get(l.getCategoryId()), l)), TreeMap::new)));
 //        log.info("categoriesByMonth2 {}", categoriesByMonth2);
 
         return StatsResponse.builder()
 //                .monthsByCategory(monthsByCategory)
-                .monthsByCategory2(monthsByCategory2)
+                .monthsByCategory(monthsByCategory)
 //                .categoriesByMonth(categoriesByMonth)
-                .categoriesByMonth2(categoriesByMonth2)
+                .categoriesByMonth(categoriesByMonth)
                 .build();
     }
 }
