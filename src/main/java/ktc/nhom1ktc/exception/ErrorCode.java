@@ -14,8 +14,12 @@ public enum ErrorCode {
     UNAUTHORIZED(1005, "Khong co quyen truy cap", HttpStatus.FORBIDDEN),
     NO_ACCOUNTS_FOUND(1006, "Không tìm thấy danh sách tài khoản nào",HttpStatus.NOT_FOUND),
     ROLES_NOT_EXISTED(1007, "Không tìm thấy roles nào", HttpStatus.NOT_FOUND),
-    INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME(1008, "Income date was not recorded by monthly income", HttpStatus.BAD_REQUEST),
-    INCOME_OBJECT_NOT_FOUND_FOR_ACCOUNT(1009, "Income object was not found for account", HttpStatus.NOT_FOUND),
+    EMAIL_EXISTED(1008,"Da ton tai mail nay" ,HttpStatus.BAD_REQUEST ),
+    INVALID_TOKEN(1009, "Khong tim thay token",HttpStatus.NOT_FOUND ),
+    EXPIRED_TOKEN(1010,"Token da het han",HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_FOUND(1011,"Khong tim thay mail" ,HttpStatus.NOT_FOUND ),
+    INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME(2008, "Income date was not recorded by monthly income", HttpStatus.BAD_REQUEST),
+    INCOME_OBJECT_NOT_FOUND_FOR_ACCOUNT(2009, "Income object was not found for account", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

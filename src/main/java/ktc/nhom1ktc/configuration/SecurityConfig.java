@@ -33,23 +33,20 @@ public class SecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     private final String[] PUBLIC_ENDPOINT = {"/api/auth/log-in",
-            "/api/accounts"
+            "/api/accounts","/api/auth/forgot-password","/api/auth/reset-password","/api/accounts/change-password"
+
 
     };
 
     private final String[] USER_ENDPOINT_GET = {
-            "/api/accounts/{id}","/api/accounts/all","/api/accounts/page"
+            "/api/users/{id}"
     };
     private final String[] USER_ENDPOINT_POST = {
     };
 
     private final String[] USER_ENDPOINT_PUT = {
-            "/api/accounts/{id}"
-
     };
-
     private final String[] USER_ENDPOINT_DELETE = {
-            "/api/accounts/{id}"
 
     };
 
