@@ -3,6 +3,8 @@ package ktc.nhom1ktc.service.impl.expense;
 
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.event.UserLoginEvent;
+import ktc.nhom1ktc.exception.AppException;
+import ktc.nhom1ktc.exception.ErrorCode;
 import ktc.nhom1ktc.repository.expense.management.income.MonthlyIncomeRepository;
 import ktc.nhom1ktc.service.expense.IMonthlyIncomeService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
@@ -73,12 +75,14 @@ public class MonthlyIncomeService implements IMonthlyIncomeService<MonthlyIncome
         AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(accountUtil.getUsername());
         UUID accountId = accountDetails.getId();
         if (ObjectUtils.isEmpty(accountDetails)) {
-            throw new RuntimeException("Username not found");
+            throw new AppException(ErrorCode.ACCOUNT_NOT_EXISTED);
+//            throw new RuntimeException("Username not found");
         }
 
         boolean existed = monthlyIncomeRepository.existsByAccountIdAndYear(accountId, year);
         if (existed) {
-            throw new RuntimeException("Monthly Income list of " + year + " already existed");
+            throw new AppException(ErrorCode.MONTHLY_INCOME_LIST_EXISTED_BY_ACCOUNT_AND_YEAR);
+//            throw new RuntimeException("Monthly Income list of " + year + " already existed");
         }
 
         List<MonthlyIncome> monthlyIncomes = initDefaultMonthlyIncomes(accountId, accountDetails.getUsername());

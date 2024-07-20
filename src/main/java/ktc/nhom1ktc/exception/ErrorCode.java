@@ -25,6 +25,7 @@ public enum ErrorCode {
     EXPENSE_YEAR_EXCEPTION(2016, "Expense year to set must be current year", HttpStatus.BAD_REQUEST),
     CATEGORY_ID_NOT_CREATED_BY_ACCOUNT_EXCEPTION(2017, "Category does not belong to current account", HttpStatus.BAD_REQUEST),
     EXPENSE_ID_NOT_CREATED_BY_ACCOUNT_EXCEPTION(2018, "Expense does not belong to current account", HttpStatus.BAD_REQUEST),
+    MONTHLY_INCOME_LIST_EXISTED_BY_ACCOUNT_AND_YEAR(2019, "List of monthly income already existed in current account and year", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
