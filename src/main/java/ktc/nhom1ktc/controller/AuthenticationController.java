@@ -48,7 +48,7 @@ public class AuthenticationController {
     @PostMapping("/log-in")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
        var result = accountService.authenticate(request);
-       eventPublisher.publishEvent(new UserLoginEvent(request.getUsername()));
+       eventPublisher.publishEvent(new UserLoginEvent(result.getUsername()));
 
        return ApiResponse.<AuthenticationResponse>builder()
                .code(1000)
