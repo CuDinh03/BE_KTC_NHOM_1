@@ -55,7 +55,9 @@ public class IncomeResponse {
         }
     }
 
+    @Builder
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class DeleteResponse {
         private UUID id;

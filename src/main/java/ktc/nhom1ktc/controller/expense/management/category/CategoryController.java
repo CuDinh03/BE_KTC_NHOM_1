@@ -3,6 +3,7 @@ package ktc.nhom1ktc.controller.expense.management.category;
 import ktc.nhom1ktc.dto.expense.category.CategoryRequest;
 import ktc.nhom1ktc.dto.expense.category.CategoryResponse;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
+import ktc.nhom1ktc.exception.expense.category.BlankOrEmptyCategoryNameException;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import ktc.nhom1ktc.service.impl.expense.CategoryService;
 import lombok.extern.slf4j.Slf4j;
@@ -49,13 +50,13 @@ public class CategoryController {
             "/v1/category/add-single",
             "/v1/admin/category/add-single"
     })
-    public CategoryResponse addSingleCategory(@RequestBody CategoryRequest request) {
+    public CategoryResponse addSingleCategory(@RequestBody CategoryRequest request) throws Exception {
         Category createdCategory = categoryService.createOne(request.getName(), request.getAccountId()).orElse(null);
         return buildResponse(createdCategory);
     }
 
     @PutMapping("/v1/category/set-name")
-    public CategoryResponse setCategoryName(@RequestBody CategoryRequest request) {
+    public CategoryResponse setCategoryName(@RequestBody CategoryRequest request) throws Exception {
 //        log.info("setCategoryName request {}", request);
         Category updatedCategory = categoryService.updateCategoryName(request.getId(), request.getAccountId(), request.getName());
 //        log.info("setCategoryName response {}", updatedCategory);
@@ -63,7 +64,7 @@ public class CategoryController {
     }
 
     @PutMapping("/v1/admin/category/set-name")
-    public CategoryResponse setCategoryNameByAdmin(@RequestBody CategoryRequest request) {
+    public CategoryResponse setCategoryNameByAdmin(@RequestBody CategoryRequest request) throws Exception {
         Category updatedCategory = categoryService.updateCategoryNameWithRoleAdmin(request.getId(), request.getAccountId(), request.getName());
         return buildResponse(updatedCategory);
     }

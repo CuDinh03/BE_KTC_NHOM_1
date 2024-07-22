@@ -1,5 +1,7 @@
 package ktc.nhom1ktc.controller.expense.management;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import ktc.nhom1ktc.dto.expense.MonthlyLogRequest;
 import ktc.nhom1ktc.dto.expense.MonthlyLogResponse;
 import ktc.nhom1ktc.entity.expense.management.MonthlyLog;
@@ -8,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Year;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -19,20 +23,25 @@ public class MonthlyLogController {
     private IMonthlyLogService<MonthlyLog> monthlyLogService;
 
     @GetMapping(value = {
-            "/v1/monthly-log/get-by-year"
+            "/v1/monthly-log/"
     })
-    public MonthlyLogResponse getByYear(@RequestBody MonthlyLogRequest request) {
-        List<MonthlyLog> logs = monthlyLogService.findAllByYear(request.getYear());
+    public MonthlyLogResponse getByYear(@RequestParam("year") @Min(2024) int year) {
+        List<MonthlyLog> logs = monthlyLogService.findAllByYear(Year.of(year));
         log.info("getByYear logs {}", logs);
-        return new MonthlyLogResponse(request.getYear(), logs);
+        return new MonthlyLogResponse(Year.of(year), logs);
     }
 
     @GetMapping(value = {
-            "/v1/monthly-log/get-by-year-months"
+            "/v1/monthly-log/{year}/"
     })
-    public MonthlyLogResponse getByYearMonths(@RequestBody MonthlyLogRequest request) {
-        List<MonthlyLog> logs = monthlyLogService.findAllByYearMonths(request.getYear(), request.getMonths());
-        return new MonthlyLogResponse(request.getYear(), logs);
+    public MonthlyLogResponse getByMonths(@PathVariable("year") @Min(2024) int year,
+                                          @RequestParam(value = "months") @Size(min = 1, max = 12) Set<Integer> months) {
+//        months = ObjectUtils.isEmpty(months)
+//                ? Collections.emptySet()
+//                : months.stream().filter(m -> 0 < m && m <= 12).collect(Collectors.toSet());
+        months.stream().filter(m -> 0 < m && m <= 12);
+        List<MonthlyLog> logs = monthlyLogService.findAllByYearMonths(Year.of(year), months);
+        return new MonthlyLogResponse(Year.of(year), logs);
     }
 
     @PutMapping(value = {

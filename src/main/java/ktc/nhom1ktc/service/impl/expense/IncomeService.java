@@ -4,15 +4,14 @@ import ktc.nhom1ktc.dto.expense.income.IncomeRequest;
 import ktc.nhom1ktc.entity.expense.management.income.Income;
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
 import ktc.nhom1ktc.exception.ErrorCode;
-import ktc.nhom1ktc.exception.expense.IncomeDateNotExistedInMonthlyIncomeException;
-import ktc.nhom1ktc.exception.expense.IncomeObjectNotFoundForAccountException;
+import ktc.nhom1ktc.exception.expense.income.IncomeDateNotExistedInMonthlyIncomeException;
+import ktc.nhom1ktc.exception.expense.income.IncomeObjectNotFoundForAccountException;
 import ktc.nhom1ktc.repository.expense.management.income.IncomeRepository;
 import ktc.nhom1ktc.repository.expense.management.income.MonthlyIncomeRepository;
 import ktc.nhom1ktc.service.expense.IIncomeService;
 import ktc.nhom1ktc.service.impl.AccountUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -70,7 +69,7 @@ public class IncomeService implements IIncomeService<Income> {
 //        MonthlyIncome requestedMI = monthlyIncomeRepository.findByIdAndCreatedByAndYearAndMonth(lastIncome.getMonthlyIncomeId(), accountUtil.getUsername(), year, month);
         MonthlyIncome requestedMI = monthlyIncomeRepository.findByCreatedByAndYearAndMonthIn(accountUtil.getUsername(), year, Collections.singleton(month))
                 .stream().findFirst()
-                .orElseThrow(() -> new IncomeDateNotExistedInMonthlyIncomeException(ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(year.getValue(), month)));
+                .orElseThrow(() -> new IncomeDateNotExistedInMonthlyIncomeException(YearMonth.of(year.getValue(), month)));
         log.info("findByIdAndCreatedByAndYearAndMonth {}", requestedMI);
 //        if (ObjectUtils.isEmpty(requestedMI)) {
 //            throw new IncomeDateNotExistedInMonthlyIncomeException(ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(year.getValue(), month));
@@ -118,7 +117,7 @@ public class IncomeService implements IIncomeService<Income> {
     }
 
     @Override
-    public UUID deleteById(UUID id) throws IncomeObjectNotFoundForAccountException {
+    public int deleteById(UUID id) throws IncomeObjectNotFoundForAccountException {
         Income lastIncome = incomeRepository.findByIdAndCreatedBy(id, accountUtil.getUsername());
         log.info("deleteById findByIdAndCreatedBy {}", lastIncome);
         if (ObjectUtils.isEmpty(lastIncome) || 0 == incomeRepository.deleteByIdAndCreatedBy(id, accountUtil.getUsername())) {
@@ -129,9 +128,11 @@ public class IncomeService implements IIncomeService<Income> {
                 .orElseThrow(() -> new RuntimeException("MonthlyIncome not found"));
         log.info("deleteById findById {}", lastMI);
         lastMI.setIncomeSum(lastMI.getIncomeSum().subtract(lastIncome.getAmount()));
-        monthlyIncomeRepository.save(lastMI);
+        lastMI.setUpdatedAt(LocalDateTime.now());
+        lastMI.setUpdatedBy(accountUtil.getUsername());
+        lastMI = monthlyIncomeRepository.save(lastMI);
 
-        return id;
+        return ObjectUtils.isEmpty(lastMI) ? 0 : 1;
     }
 
     private Income buildIncome(BigDecimal amount, LocalDate date) throws Exception {
@@ -141,16 +142,20 @@ public class IncomeService implements IIncomeService<Income> {
                 Year.of(date.getYear()), Collections.singleton(date.getMonth()));
         log.info("buildIncome monthlyIncomes {}", monthlyIncomes);
         if (ObjectUtils.isEmpty(monthlyIncomes)) {
-            throw new IncomeDateNotExistedInMonthlyIncomeException(
-                    ErrorCode.INCOME_DATE_NOT_EXISTED_IN_MONTHLY_INCOME, YearMonth.of(date.getYear(), date.getMonth()));
+            throw new IncomeDateNotExistedInMonthlyIncomeException(YearMonth.of(date.getYear(), date.getMonth()));
         }
-
-        final AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(username);
         final LocalDateTime dateTime = LocalDateTime.now();
+        final AccountUtil.AccountDetails accountDetails = accountUtil.loadUserByUsername(username);
+
+        MonthlyIncome targetMI = monthlyIncomes.stream().filter(mi -> mi.getMonth() == date.getMonth()).findFirst().orElseThrow();
+        targetMI.setIncomeSum(targetMI.getIncomeSum().add(amount));
+        targetMI.setUpdatedAt(dateTime);
+        targetMI.setUpdatedBy(accountDetails.getUsername());
+        targetMI = monthlyIncomeRepository.save(targetMI);
 
         return Income.builder()
                 .accountId(accountDetails.getId())
-                .monthlyIncomeId(monthlyIncomes.get(0).getId())
+                .monthlyIncomeId(targetMI.getId())
                 .date(date)
                 .amount(amount)
                 .createdAt(dateTime)

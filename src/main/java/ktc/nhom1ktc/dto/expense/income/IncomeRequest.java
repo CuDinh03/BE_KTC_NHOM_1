@@ -46,6 +46,7 @@ public class IncomeRequest {
 
     @Builder
     @Data
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class DeleteRequest {
         @NotNull

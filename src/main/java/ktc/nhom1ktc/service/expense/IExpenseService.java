@@ -13,15 +13,15 @@ public interface IExpenseService<T> {
     T addSingle(T e);
 
     @Transactional
-    T addSingle(ExpenseRequest request);
+    T addSingle(ExpenseRequest request) throws Exception;
 
     @Transactional
-    int deleteById(UUID id);
+    int deleteById(UUID id) throws Exception;
 
     List<T> findByYear(int year);
 
     T findById(UUID id);
 
     @Transactional
-    T update(ExpenseRequest expenseRequest);
+    T update(ExpenseRequest expenseRequest) throws Exception;
 }

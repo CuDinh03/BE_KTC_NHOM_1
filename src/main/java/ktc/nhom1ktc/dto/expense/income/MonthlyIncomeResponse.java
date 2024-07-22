@@ -13,10 +13,10 @@ import java.util.TreeMap;
 //@Builder
 @Data
 public class MonthlyIncomeResponse {
-    private Year year;
+    private int year;
     private Map<Integer, BigDecimal> monthlyIncomes;
 
-    public MonthlyIncomeResponse(Year year, List<MonthlyIncome> monthlyIncomes) {
+    public MonthlyIncomeResponse(int year, List<MonthlyIncome> monthlyIncomes) {
         this.year = year;
         this.monthlyIncomes = new TreeMap<>();
         monthlyIncomes.forEach(e -> this.monthlyIncomes.put(e.getMonth().getValue(), e.getIncomeSum()));
