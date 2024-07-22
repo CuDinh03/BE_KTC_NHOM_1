@@ -17,13 +17,13 @@ public interface ICategoryService<T, U> {
     List<T> findAllByUsername(String username);
 
     @Transactional
-    Optional<T> createOne(String name, U accountId);
+    Optional<T> createOne(String name, U accountId) throws Exception;
 
     @Transactional
-    Category updateCategoryNameWithRoleAdmin(UUID id, UUID accountId,String name);
+    Category updateCategoryNameWithRoleAdmin(UUID id, UUID accountId,String name) throws Exception;
 
     @Transactional
-    Category updateCategoryName(UUID id, UUID accountId, String name);
+    Category updateCategoryName(UUID id, UUID accountId, String name) throws Exception;
 
     @Transactional
     Category updateCategoryStatus(UUID id, UUID accountId, Status status);

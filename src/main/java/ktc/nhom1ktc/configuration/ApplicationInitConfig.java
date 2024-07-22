@@ -40,6 +40,8 @@ public class ApplicationInitConfig {
                             .name("ADMIN")
                             .createdAt(new Date())
                             .updateAt(new Date())
+                            .createdBy(adminUsername)
+                            .updatedBy(adminUsername)
                             .status(1)
                             .build();
                     roleRepository.save(role);
@@ -51,6 +53,8 @@ public class ApplicationInitConfig {
                             .name("USER")
                             .createdAt(new Date())
                             .updateAt(new Date())
+                            .createdBy(adminUsername)
+                            .updatedBy(adminUsername)
                             .status(1)
                             .build();
                     roleRepository.save(role);
@@ -64,6 +68,8 @@ public class ApplicationInitConfig {
                         .code("TK01")
                         .createdAt(new Date())
                         .updateAt(new Date())
+                        .createdBy(adminUsername)
+                        .updatedBy(adminUsername)
                         .role(role)
                         .status(1)
                         .password(passwordEncoder.encode("admin"))

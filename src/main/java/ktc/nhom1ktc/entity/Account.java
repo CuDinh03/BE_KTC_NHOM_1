@@ -1,28 +1,30 @@
 package ktc.nhom1ktc.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
-import java.time.Year;
 
-@Entity
-@Table
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
+@Entity
+@Table(name = "account", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_account_code", columnNames = {"code"}),
+        @UniqueConstraint(name = "uc_account_username", columnNames = {"username"})
+})
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @Column(nullable = false, unique = true, name = "code")
     private String code;
+    @Column(nullable = false, unique = true, name = "username")
     private String username;
     private String password;
     @ManyToOne
@@ -34,5 +36,4 @@ public class Account {
     private Integer status;
     private BigDecimal incomeSum;
     private BigDecimal expenseSum;
-    private Year lastLoginedYear;
 }

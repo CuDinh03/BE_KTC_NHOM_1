@@ -1,19 +1,16 @@
 package ktc.nhom1ktc.repository.expense.management;
 
-import ktc.nhom1ktc.entity.Account;
-import ktc.nhom1ktc.entity.Role;
 import ktc.nhom1ktc.entity.expense.Status;
 import ktc.nhom1ktc.entity.expense.management.category.Category;
 import ktc.nhom1ktc.entity.expense.management.category.CategoryType;
 import ktc.nhom1ktc.repository.RepositoryTests;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -37,37 +34,6 @@ class CategoryRepositoryTest extends RepositoryTests {
 
     Set<Category> commonCategorySet;
     Set<Category> personalCategorySet;
-
-    final LocalDateTime dateTime = LocalDateTime.now();
-    final Date date = Date.from(dateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-    Role userRole = makeRole(RoleType.USER, date);
-    Role adminRole = makeRole(RoleType.ADMIN, date);
-
-    final String normalUsername = codePrefix + "user";
-    final String adminUsername = codePrefix + "admin";
-
-    Account userAcc = makeAccount(normalUsername, userRole, date);
-    Account adminAcc = makeAccount(adminUsername, adminRole, date);
-
-    @BeforeEach
-    public void before() {
-        roleRepository.findByName(RoleType.USER.name()).ifPresentOrElse(
-                role -> userAcc = makeAccount(normalUsername, role, date),
-                () -> saveRole(userRole));
-        roleRepository.findByName(RoleType.ADMIN.name()).ifPresentOrElse(
-                role -> adminAcc = makeAccount(adminUsername, role, date),
-                () -> saveRole(adminRole));
-
-        accountRepository.findByUsername(normalUsername).ifPresentOrElse(
-                acc -> { acc.setRole(userRole);
-                    userAcc = accountRepository.save(acc); },
-                () -> userAcc = saveAccount(userAcc));
-        accountRepository.findByUsername(adminUsername).ifPresentOrElse(
-                acc -> { acc.setRole(adminRole);
-                    adminAcc = accountRepository.save(acc); },
-                () -> adminAcc = saveAccount(adminAcc));
-    }
 
     private Category makeCommonCategoryByName(final String name) {
         return Category.builder()
