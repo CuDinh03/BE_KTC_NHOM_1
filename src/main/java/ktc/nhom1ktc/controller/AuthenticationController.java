@@ -13,6 +13,7 @@ import ktc.nhom1ktc.repository.PasswordResetTokenRepository;
 import ktc.nhom1ktc.repository.UserRepository;
 import ktc.nhom1ktc.service.impl.AccountService;
 import ktc.nhom1ktc.service.impl.EmailSenderService;
+import ktc.nhom1ktc.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,9 @@ public class AuthenticationController {
     private AccountService accountService;
 
     @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -42,8 +46,6 @@ public class AuthenticationController {
 
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
 
     @PostMapping("/log-in")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
