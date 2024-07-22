@@ -4,6 +4,7 @@ import ktc.nhom1ktc.dto.ApiResponse;
 import ktc.nhom1ktc.exception.expense.income.IncomeDateNotExistedInMonthlyIncomeException;
 import ktc.nhom1ktc.exception.expense.category.CategoryException;
 import ktc.nhom1ktc.exception.expense.income.IncomeException;
+import ktc.nhom1ktc.exception.expense.outcome.ExpenseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.ObjectUtils;
@@ -107,6 +108,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = CategoryException.class)
     ResponseEntity<ApiResponse> handleCategoryException(CategoryException exception){
+        String msg = exception.getMessage();
+        ErrorCode errorCode = exception.getErrorCode();
+
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(msg)
+                        .build());
+    }
+
+    @ExceptionHandler(value = ExpenseException.class)
+    ResponseEntity<ApiResponse> handleExpenseException(ExpenseException exception){
         String msg = exception.getMessage();
         ErrorCode errorCode = exception.getErrorCode();
 

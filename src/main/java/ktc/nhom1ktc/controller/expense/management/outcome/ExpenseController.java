@@ -37,7 +37,7 @@ public class ExpenseController {
     @PostMapping(value = {
             "/v1/expense/add-single",
     })
-    public ExpenseResponse addSingle(@RequestBody ExpenseRequest expenseRequest) {
+    public ExpenseResponse addSingle(@RequestBody ExpenseRequest expenseRequest) throws Exception {
         Expense expense = expenseService.addSingle(expenseRequest);
         return new ExpenseResponse(expense);
     }
@@ -54,7 +54,7 @@ public class ExpenseController {
     @DeleteMapping(value = {
             "/v1/expense/delete",
     })
-    public ExpenseResponse.DeleteResponse delete(@RequestBody ExpenseRequest.DeleteRequest deleteRequest) {
+    public ExpenseResponse.DeleteResponse delete(@RequestBody ExpenseRequest.DeleteRequest deleteRequest) throws Exception {
         log.info("delete expense with deleteRequest {}", deleteRequest);
         int deleted = expenseService.deleteById(deleteRequest.getId());
         log.info("delete expense with deleted {}", deleted);

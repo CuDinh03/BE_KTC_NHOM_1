@@ -157,6 +157,7 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
         var token = generateToken(account);
 
         return AuthenticationResponse.builder()
+                .accountId(String.valueOf(account.getId()))
                 .mail(users.getEmail())
                 .userId(String.valueOf(users.getId()))
                 .username(account.getUsername())
@@ -177,7 +178,7 @@ public class AccountService implements IService<Account>, IAccountService<Accoun
                 .issuer(account.getUsername())
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
+                        Instant.now().plus(3, ChronoUnit.HOURS).toEpochMilli()
                 ))
                 .claim("scope", buildScope(account))
                 .build();
