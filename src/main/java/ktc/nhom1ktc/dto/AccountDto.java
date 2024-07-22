@@ -17,4 +17,5 @@ public class AccountDto {
     private Date createdAt;
     private Date updateAt;
     private Integer status;
+    private String mail;
 }

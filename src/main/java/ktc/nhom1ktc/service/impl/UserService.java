@@ -4,6 +4,7 @@ import ktc.nhom1ktc.entity.Users;
 import ktc.nhom1ktc.repository.UserRepository;
 import ktc.nhom1ktc.service.IService;
 import ktc.nhom1ktc.service.IUserService;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,9 +30,9 @@ public class UserService implements IService<Users>, IUserService {
     }
 
     @Override
-    public Users update(UUID uuid, Users user) {
-        if (userRepository.existsById(uuid)) {
-            user.setId(uuid);
+    public Users update(UUID id, Users user) {
+        if (userRepository.existsById(id)) {
+            user.setId(id);
             return userRepository.save(user);
         }
         return null;
@@ -39,7 +40,17 @@ public class UserService implements IService<Users>, IUserService {
 
     @Override
     public void delete(UUID id) {
-        userRepository.deleteById(id);
+        Users user = getByID(id);
+        user.setStatus(0);
+        userRepository.saveAndFlush(user);
+    }
+
+    @Override
+    public void open(UUID id) {
+        Users user = getByID(id);
+        user.setStatus(1);
+        userRepository.saveAndFlush(user);
+
     }
 
     @Override
