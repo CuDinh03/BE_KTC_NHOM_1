@@ -6,6 +6,7 @@ import ktc.nhom1ktc.entity.Users;
 import ktc.nhom1ktc.event.AdminInitEvent;
 import ktc.nhom1ktc.repository.AccountRepository;
 import ktc.nhom1ktc.repository.RoleRepository;
+import ktc.nhom1ktc.service.impl.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +29,8 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
     ApplicationEventPublisher applicationEventPublisher;
+
+    UserService userService;
 
     @Bean
     ApplicationRunner applicationRunner(AccountRepository repository) {
@@ -82,8 +85,7 @@ public class ApplicationInitConfig {
                         .createdBy("ADMIN")
                         .updateAt(new Date())
                         .build();
-
-
+                userService.create(users);
                 log.warn("admin user has been created with default password: admin, change it !! ");
             }
 
