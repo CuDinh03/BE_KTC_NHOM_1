@@ -2,6 +2,7 @@ package ktc.nhom1ktc.configuration;
 
 import ktc.nhom1ktc.entity.Account;
 import ktc.nhom1ktc.entity.Role;
+import ktc.nhom1ktc.entity.Users;
 import ktc.nhom1ktc.event.AdminInitEvent;
 import ktc.nhom1ktc.repository.AccountRepository;
 import ktc.nhom1ktc.repository.RoleRepository;
@@ -69,7 +70,14 @@ public class ApplicationInitConfig {
                         .password(passwordEncoder.encode("admin"))
                         .build();
 
-                repository.save(account);
+                Users users = Users.builder()
+                        .account(repository.save(account))
+                        .createdAt(new Date())
+                        .createdBy("ADMIN")
+                        .updateAt(new Date())
+                        .build();
+
+
                 log.warn("admin user has been created with default password: admin, change it !! ");
             }
 
