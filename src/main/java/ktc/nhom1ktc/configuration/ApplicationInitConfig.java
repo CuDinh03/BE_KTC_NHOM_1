@@ -83,6 +83,7 @@ public class ApplicationInitConfig {
                         .createdAt(new Date())
                         .createdBy("ADMIN")
                         .updateAt(new Date())
+                        .status(1)
                         .build();
                 userService.create(users);
                 log.warn("admin user has been created with default password: admin, change it !! ");
