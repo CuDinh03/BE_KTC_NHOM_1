@@ -29,7 +29,6 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
     ApplicationEventPublisher applicationEventPublisher;
-
     UserService userService;
 
     @Bean
