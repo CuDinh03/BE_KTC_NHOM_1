@@ -23,7 +23,7 @@ public class Category implements Serializable {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 

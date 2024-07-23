@@ -40,6 +40,8 @@ spring:
 
   devtools:
     add-properties: false
+#  jackson:
+#    default-property-inclusion: non_null
 
 
 server:

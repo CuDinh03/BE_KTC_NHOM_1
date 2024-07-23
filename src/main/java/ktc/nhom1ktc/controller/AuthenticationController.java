@@ -6,6 +6,7 @@ import ktc.nhom1ktc.dto.AuthenticationResponse;
 import ktc.nhom1ktc.dto.ResetPasswordRequest;
 import ktc.nhom1ktc.entity.PasswordResetToken;
 import ktc.nhom1ktc.entity.Users;
+import ktc.nhom1ktc.event.UserLoginEvent;
 import ktc.nhom1ktc.exception.AppException;
 import ktc.nhom1ktc.exception.ErrorCode;
 import ktc.nhom1ktc.repository.PasswordResetTokenRepository;
@@ -14,8 +15,12 @@ import ktc.nhom1ktc.service.impl.AccountService;
 import ktc.nhom1ktc.service.impl.EmailSenderService;
 import ktc.nhom1ktc.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -28,6 +33,9 @@ public class AuthenticationController {
     private AccountService accountService;
 
     @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -38,9 +46,12 @@ public class AuthenticationController {
 
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
+
     @PostMapping("/log-in")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
        var result = accountService.authenticate(request);
+       eventPublisher.publishEvent(new UserLoginEvent(result.getUsername()));
+
        return ApiResponse.<AuthenticationResponse>builder()
                .code(1000)
                .result(result)

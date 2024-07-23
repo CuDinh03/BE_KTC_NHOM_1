@@ -1,10 +1,9 @@
-package ktc.nhom1ktc.entity.expense.management.category;
+package ktc.nhom1ktc.entity.expense.management;
 
 import jakarta.persistence.*;
-import ktc.nhom1ktc.entity.Account;
+import ktc.nhom1ktc.entity.expense.management.category.Category;
 import ktc.nhom1ktc.entity.expense.management.income.MonthlyIncome;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,13 +11,19 @@ import java.time.Month;
 import java.time.Year;
 import java.util.UUID;
 
+@Builder
+@ToString
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "monthly_log",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uc_monthlylog_year_month", columnNames = {"year", "month", "category_id", "account_id"})
-})
+        @UniqueConstraint(name = "uc_monthlylog_year_month_category_account", columnNames = {"year", "month", "category_id", "account_id"}),
+        @UniqueConstraint(name = "uc_monthlylog_year_month_category_username", columnNames = {"year", "month", "category_id", "created_by"})
+
+        })
 public class MonthlyLog {
 
     @Id
@@ -30,15 +35,22 @@ public class MonthlyLog {
     private Year year;
 
     @Column(name = "month", nullable = false)
+    @Convert(converter = MonthOrderConverter.class)
     private Month month;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+//    @ManyToOne(optional = false)
+//    @JoinColumn(name = "category_id", nullable = false)
+//    private Category category;
 
-    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private UUID categoryId;
+
+//    @ManyToOne
+//    @JoinColumn(name = "account_id")
+//    private Account account;
+
     @JoinColumn(name = "account_id")
-    private Account account;
+    private UUID accountId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
